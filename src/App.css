@@ -1,0 +1,793 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ==========================
+   GLOBAL RESET
+========================== */
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  font-family:'Poppins',sans-serif;
+  background:#f8f5f2;
+  color:#333;
+  line-height:1.6;
+}
+
+#root{
+  width:100%;
+}
+
+.App{
+  width:100%;
+  max-width:1400px;
+  margin:auto;
+  min-height:100vh;
+}
+
+/* ==========================
+   TYPOGRAPHY
+========================== */
+
+h1{
+  font-size:48px;
+  color:#5C3B1E;
+  font-weight:700;
+  text-align:center;
+  margin:30px 0 15px;
+}
+
+h2{
+  font-size:34px;
+  color:#6F4E37;
+  text-align:center;
+  margin:25px 0;
+}
+
+h3{
+  font-size:24px;
+  color:#5C3B1E;
+}
+
+p{
+  font-size:18px;
+  color:#666;
+}
+
+/* ==========================
+   MODERN NAVIGATION
+========================== */
+
+nav{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:15px;
+  padding:18px;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(10px);
+  box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+nav a{
+  text-decoration:none;
+  color:white;
+  background:#6F4E37;
+  padding:12px 22px;
+  border-radius:30px;
+  font-weight:600;
+  transition:.3s;
+}
+
+nav a:hover{
+  background:#4B2E1E;
+  transform:translateY(-3px);
+}
+
+/* ==========================
+   GLOBAL BUTTONS
+========================== */
+
+button{
+  background:#16a34a;
+  color:white;
+  border:none;
+  padding:16px 30px;
+  font-size:18px;
+  border-radius:40px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.3s;
+}
+
+button:hover{
+  background:#15803d;
+  transform:scale(1.03);
+
+}
+/* ==========================
+   HERO SECTION
+========================== */
+
+.hero{
+  text-align:center;
+  padding:70px 20px;
+}
+
+.hero-image{
+  width:100%;
+  max-width:1000px;
+  height:500px;
+  object-fit:cover;
+  border-radius:25px;
+  display:block;
+  margin:0 auto 30px;
+  box-shadow:0 20px 40px rgba(0,0,0,.15);
+}
+
+.hero h1{
+  font-size:56px;
+  margin-bottom:15px;
+}
+
+.hero-text{
+  font-size:22px;
+  color:#6F4E37;
+  margin-bottom:30px;
+}
+
+/* ==========================
+   MENU CARDS
+========================== */
+
+.menu{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:30px;
+  padding:40px 0;
+}
+
+.card{
+  background:white;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 12px 30px rgba(0,0,0,.10);
+  transition:all .3s ease;
+}
+
+.card:hover{
+  transform:translateY(-10px);
+  box-shadow:0 20px 40px rgba(0,0,0,.18);
+}
+
+.card img{
+  width:100%;
+  height:240px;
+  object-fit:cover;
+}
+
+.card-content{
+  padding:20px;
+}
+
+.card h3{
+  margin-bottom:10px;
+}
+
+.price{
+  color:#6F4E37;
+  font-size:24px;
+  font-weight:bold;
+  margin:15px 0;
+}
+
+/* ==========================
+   FEATURE BOXES
+========================== */
+
+.feature{
+  background:white;
+  padding:30px;
+  margin:25px auto;
+  max-width:900px;
+  border-radius:20px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+  transition:.3s;
+}
+
+.feature:hover{
+  transform:translateY(-6px);
+}
+/* ==========================
+   SHOPPING CART
+========================== */
+
+.cart{
+  margin:50px auto;
+  max-width:900px;
+}
+
+.cart-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#fff;
+  padding:18px;
+  margin-bottom:15px;
+  border-radius:18px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+.checkout-btn{
+  display:block;
+  margin:30px auto;
+  padding:15px 35px;
+  font-size:18px;
+}
+
+/* ==========================
+   FOOTER
+========================== */
+
+footer{
+  margin-top:80px;
+  background:#4B2E1E;
+  color:white;
+  text-align:center;
+  padding:50px 20px;
+}
+
+footer h3{
+  color:white;
+  margin-bottom:10px;
+}
+
+footer p{
+  color:#ddd;
+}
+
+/* ==========================
+   DARK MODE
+========================== */
+
+.dark{
+  background:#1f1f1f;
+  color:white;
+  min-height:100vh;
+}
+
+.dark nav{
+  background:#2b2b2b;
+}
+
+.dark .card,
+.dark .feature,
+.dark .cart-item{
+  background:#333;
+  color:white;
+}
+
+.dark h1,
+.dark h2,
+.dark h3,
+.dark p{
+  color:white;
+}
+
+.dark input,
+.dark select,
+.dark textarea{
+  background:#444;
+  color:white;
+  border:1px solid #666;
+}
+
+.dark footer{
+  background:#111;
+}
+
+/* ==========================
+   RESPONSIVE
+========================== */
+
+@media (max-width:768px){
+
+  .App{
+    padding:15px;
+  }
+
+  nav{
+    flex-direction:column;
+    gap:10px;
+  }
+
+  nav a{
+    width:90%;
+    text-align:center;
+  }
+
+  .hero{
+    padding:40px 15px;
+  }
+
+  .hero-image{
+    height:250px;
+  }
+
+  .hero h1{
+    font-size:34px;
+  }
+
+  .hero-text{
+    font-size:18px;
+  }
+
+  .menu{
+    grid-template-columns:1fr;
+  }
+
+  .card img{
+    height:200px;
+  }
+
+  .cart-item{
+    flex-direction:column;
+    text-align:center;
+    gap:10px;
+  }
+
+  button{
+    width:100%;
+  }
+}
+/* =====================================
+   MODERN HEADER
+===================================== */
+
+.logo{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  padding:20px;
+}
+
+.logo img{
+  width:70px;
+  height:70px;
+}
+
+.logo h1{
+  margin:0;
+  font-size:42px;
+  color:#5C3B1E;
+}
+
+/* =====================================
+   MODERN NAVIGATION
+===================================== */
+
+nav{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:15px;
+  background:#2b2b2b;
+  padding:16px;
+  border-radius:0 0 18px 18px;
+  position:sticky;
+  top:0;
+  z-index:1000;
+}
+
+nav a{
+  text-decoration:none;
+  color:#fff;
+  background:#6F4E37;
+  padding:14px 24px;
+  border-radius:50px;
+  font-weight:600;
+  transition:.3s;
+}
+
+nav a:hover{
+  background:#8B5E3C;
+  transform:translateY(-3px);
+}
+
+/* Remove | separators if they exist */
+
+nav span{
+  display:none;
+}
+
+/* =====================================
+   SEARCH
+===================================== */
+
+input[type="text"]{
+  width:100%;
+  max-width:500px;
+  padding:15px;
+  font-size:18px;
+  border-radius:12px;
+  margin:20px auto;
+}
+
+select{
+  width:220px;
+  padding:14px;
+  font-size:17px;
+  border-radius:12px;
+  display:block;
+  margin:0 auto 30px;
+}
+
+/* =====================================
+   MENU
+===================================== */
+
+.menu{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:35px;
+  margin:40px 0;
+}
+
+.card{
+  background:#323232;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 15px 35px rgba(0,0,0,.25);
+  transition:.35s;
+}
+
+.card:hover{
+  transform:translateY(-10px);
+}
+
+.card img{
+  width:100%;
+  height:260px;
+  object-fit:cover;
+}
+
+.card h3{
+  font-size:30px;
+  color:#fff;
+  margin-top:18px;
+}
+
+.price{
+  font-size:24px;
+  color:#d7b899;
+  font-weight:bold;
+}
+
+/* =====================================
+   BUTTONS
+===================================== */
+
+button{
+  padding:16px 30px;
+  font-size:18px;
+  border-radius:40px;
+  font-weight:bold;
+}
+
+.checkout-btn,
+.logout-btn{
+  width:260px;
+  margin:20px auto;
+  display:block;
+}
+
+/* =====================================
+   SHOPPING CART
+===================================== */
+
+.cart{
+  max-width:900px;
+  margin:40px auto;
+  padding:20px;
+}
+
+.cart h2{
+  margin-bottom:20px;
+}
+
+.cart-item{
+  margin-bottom:15px;
+}
+
+/* =====================================
+   REMOVE EMPTY SPACE
+===================================== */
+
+section{
+  margin:0;
+  padding:40px 0;
+}
+
+.menu + .cart{
+  margin-top:20px;
+}
+
+/* =====================================
+   MOBILE
+===================================== */
+
+@media(max-width:768px){
+
+.logo h1{
+font-size:32px;
+}
+
+.logo img{
+width:55px;
+height:55px;
+}
+
+nav{
+padding:12px;
+gap:10px;
+}
+
+nav a{
+width:170px;
+text-align:center;
+padding:14px;
+}
+
+.card img{
+height:220px;
+}
+
+button{
+width:100%;
+}
+
+.checkout-btn,
+.logout-btn{
+width:100%;
+}
+
+input[type="text"]{
+max-width:100%;
+}
+
+select{
+width:100%;
+}
+
+}
+/* BLUE HAMBURGER MENU */
+.hamburger {
+  color: #007bff;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.hamburger:hover {
+  color: #0056b3;
+}.hamburger {
+  background: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-size: 28px;
+  cursor: pointer;
+}
+/* =========================
+   GREEN BUTTONS
+========================= */
+
+button,
+.hero-btn,
+.checkout-btn,
+.logout-btn {
+  background: #16a34a !important;
+  color: white !important;
+}
+
+button:hover,
+.hero-btn:hover,
+.checkout-btn:hover,
+.logout-btn:hover {
+  background: #15803d !important;
+}
+/* INVESTMENT FORM BUTTON SPACING */
+.investment-form button {
+  display: block;
+  width: 90%;
+  margin: 12px auto;
+}
+
+/* Keep buttons separated when they are next to each other */
+.investment-form button + button {
+  margin-top: 16px;
+}.investment-form {
+  padding: 25px 15px;
+  text-align: center;
+}
+
+.investment-form input {
+  display: block;
+  width: 90%;
+  max-width: 500px;
+  margin: 15px auto;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 10px;
+}
+/* ==========================
+   BUTTON SPACING
+========================== */
+
+button {
+  margin: 10px 0;
+}
+
+.hero-btn {
+  margin: 10px 0;
+}
+
+/* Keep buttons separated */
+button + button {
+  margin-top: 16px;
+}
+
+/* Investment action buttons */
+.checkout-btn,
+.logout-btn {
+  margin: 12px auto;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  button {
+    margin: 10px 0;
+  }
+
+  button + button {
+    margin-top: 18px;
+  }
+}
+.available-balance {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 22px;
+}
+
+.available-balance strong {
+  display: block;
+  margin-top: 8px;
+  color: green;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+/* Withdrawal amount input */
+.withdrawal-amount-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 22px 20px;
+  margin: 10px 0 25px;
+  border: 3px solid #007bff;
+  border-radius: 15px;
+  background: #eaf4ff;
+  color: #0056b3;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+}
+
+.withdrawal-amount-input:focus {
+  border-color: #0056b3;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+.change-password-page {
+  min-height: 100vh;
+  background: #f7f4f0;
+  padding: 50px 15px;
+}
+
+.change-password-card {
+  width: 100%;
+  max-width: 550px;
+  margin: auto;
+  background: white;
+  padding: 35px 25px;
+  border-radius: 25px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+}
+
+.lock-icon {
+  text-align: center;
+  font-size: 60px;
+}
+
+.change-password-card h1 {
+  text-align: center;
+  color: #5d3b27;
+  font-size: 34px;
+  margin: 10px 0;
+}
+
+.change-password-card p {
+  text-align: center;
+  color: #777;
+  font-size: 17px;
+  margin-bottom: 30px;
+}
+
+.change-password-card form {
+  display: flex;
+  flex-direction: column;
+}
+
+.change-password-card label {
+  font-weight: bold;
+  margin: 12px 0 7px;
+}
+
+.change-password-card input {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #bbb;
+  border-radius: 10px;
+  font-size: 17px;
+}
+
+.change-password-card input:focus {
+  outline: 2px solid #087ff5;
+}
+
+.change-password-card button {
+  margin-top: 25px;
+  padding: 16px;
+  border: none;
+  border-radius: 30px;
+  background: #16a34a;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.change-password-card button:hover {
+  background: #12843d;
+}
+
+.password-error,
+.password-success {
+  margin-top: 18px;
+  padding: 13px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.password-error {
+  background: #ffe5e5;
+  color: #b00000;
+}
+
+.password-success {
+  background: #e2f8e8;
+  color: #08752f;
+}
