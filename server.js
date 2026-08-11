@@ -3,64 +3,59 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
-const Product = require("./models/Product");
-const Order = require("./models/Order");
 const authRoutes = require("./routes/auth");
+const investmentRoutes = require("./routes/investments");
+const withdrawalRoutes = require("./routes/withdrawals");
+const planRoutes = require("./routes/plans");
 
 const app = express();
+
+// ===============================
+// MIDDLEWARE
+// ===============================
 
 app.use(cors());
 app.use(express.json());
 
+// ===============================
+// ROUTES
+// ===============================
+
 app.use("/auth", authRoutes);
+app.use("/investments", investmentRoutes);
+app.use("/withdrawals", withdrawalRoutes);
+app.use("/plans", planRoutes);
+
+// ===============================
+// HOME / HEALTH CHECK
+// ===============================
+
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Osunburg Investment API is running",
+  });
+});
+
+// ===============================
+// MONGODB
+// ===============================
 
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.log(err));
+  .then(() => {
+    console.log("✅ MongoDB Connected");
+  })
+  .catch((error) => {
+    console.error("❌ MongoDB Error:", error.message);
+  });
 
-app.get("/", (req, res) => {
-  res.send("☕ Wedajo Coffee Shop API Running");
-});
-
-app.get("/products", async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
-});
-
-app.post("/products", async (req, res) => {
-  const product = new Product(req.body);
-  await product.save();
-  res.json(product);
-});
-
-app.put("/products/:id", async (req, res) => {
-  const product = await Product.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true }
-  );
-  res.json(product);
-});
-
-app.delete("/products/:id", async (req, res) => {
-  await Product.findByIdAndDelete(req.params.id);
-  res.json({ message: "Product deleted" });
-});
-
-app.get("/orders", async (req, res) => {
-  const orders = await Order.find();
-  res.json(orders);
-});
-
-app.post("/orders", async (req, res) => {
-  const order = new Order(req.body);
-  await order.save();
-  res.json(order);
-});
+// ===============================
+// SERVER
+// ===============================
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
