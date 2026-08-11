@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
@@ -18,7 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 // ===============================
-// ROUTES
+// API ROUTES
 // ===============================
 
 app.use("/auth", authRoutes);
@@ -27,14 +28,36 @@ app.use("/withdrawals", withdrawalRoutes);
 app.use("/plans", planRoutes);
 
 // ===============================
-// HOME / HEALTH CHECK
+// API HEALTH CHECK
 // ===============================
 
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
   res.json({
     success: true,
     message: "Osunburg Investment API is running",
   });
+});
+
+// ===============================
+// SERVE REACT FRONTEND
+// ===============================
+
+const distPath = path.join(__dirname, "dist");
+
+app.use(express.static(distPath));
+
+app.use((req, res, next) => {
+  if (
+    req.method === "GET" &&
+    !req.path.startsWith("/auth") &&
+    !req.path.startsWith("/investments") &&
+    !req.path.startsWith("/withdrawals") &&
+    !req.path.startsWith("/plans")
+  ) {
+    return res.sendFile(path.join(distPath, "index.html"));
+  }
+
+  next();
 });
 
 // ===============================

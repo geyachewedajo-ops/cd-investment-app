@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_URL = "http://10.206.20.81:5000";
+const API_URL = "";
 
 function Admin() {
   const [investments, setInvestments] = useState([]);

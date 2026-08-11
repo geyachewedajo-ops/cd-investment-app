@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_URL = "http://10.206.20.81:5000";
+const API_URL = "";
 
 function Withdraw() {
   const [balance, setBalance] = useState(0);

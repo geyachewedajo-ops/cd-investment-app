@@ -9,7 +9,7 @@
 
 import { useState } from "react";
 
-const API_URL = "http://10.206.20.81:5000";
+const API_URL = "";
 
 function Login({ onLogin }) {
   const [mode, setMode] = useState("login");
