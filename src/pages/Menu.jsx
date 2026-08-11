@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_URL = "";
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 const CBE_ACCOUNT_NAME = "CBE";
 const CBE_ACCOUNT_NUMBER = "1000303329505";
@@ -663,7 +663,7 @@ function Menu() {
                     Risk Level:
                   </strong>{" "}
 
-                  {plan.riskLevel ||
+                  {plan.risk ||
                     "Not specified"}
                 </p>
 
