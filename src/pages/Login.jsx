@@ -9,7 +9,7 @@
 
 import { useState } from "react";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+const API_URL = "https://cd-investment-app.onrender.com";
 
 function Login({ onLogin }) {
   const [mode, setMode] = useState("login");
