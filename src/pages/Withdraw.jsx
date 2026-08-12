@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_URL = "https://cd-investment-app.onrender.com";
+const API_URL = "https://investment-backend-i2dr.onrender.com";
 
 function Withdraw() {
   const [balance, setBalance] = useState(0);

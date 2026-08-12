@@ -9,7 +9,7 @@
 
 import { useState } from "react";
 
-const API_URL = "https://cd-investment-app.onrender.com";
+const API_URL = "https://investment-backend-i2dr.onrender.com";
 
 function Login({ onLogin }) {
   const [mode, setMode] = useState("login");
