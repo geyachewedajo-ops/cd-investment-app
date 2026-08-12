@@ -1,3 +1,7 @@
+
+
+
+
 import { useEffect, useState } from "react";
 
 const API_URL = "https://investment-backend-2-n9hf.onrender.com";
@@ -10,17 +14,14 @@ function Menu() {
 
   const [selectedPlans, setSelectedPlans] = useState(() => {
     try {
-      const saved = localStorage.getItem(
-        "selectedInvestmentPlans"
-      );
+      const saved = localStorage.getItem("selectedInvestmentPlans");
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }
   });
 
-  const [confirmedInvestments, setConfirmedInvestments] =
-    useState([]);
+  const [confirmedInvestments, setConfirmedInvestments] = useState([]);
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All Plans");
@@ -30,16 +31,11 @@ function Menu() {
   const [error, setError] = useState("");
 
   const [currentPlan, setCurrentPlan] = useState(null);
-  const [investmentAmount, setInvestmentAmount] =
-    useState("");
-  const [transactionId, setTransactionId] =
-    useState("");
+  const [investmentAmount, setInvestmentAmount] = useState("");
+  const [transactionId, setTransactionId] = useState("");
 
-  const [showInvestmentForm, setShowInvestmentForm] =
-    useState(false);
-
-  const [showPayment, setShowPayment] =
-    useState(false);
+  const [showInvestmentForm, setShowInvestmentForm] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
 
   // =========================
   // LOAD PLANS
@@ -69,7 +65,7 @@ function Menu() {
   }, [selectedPlans]);
 
   // =========================
-  // LOAD PLANS FROM MONGODB
+  // LOAD PLANS
   // =========================
 
   const loadPlans = async () => {
@@ -77,27 +73,19 @@ function Menu() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(
-        `${API_URL}/plans`
-      );
+      const response = await fetch(`${API_URL}/plans`);
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Failed to load investment plans."
+          data.message || "Failed to load investment plans."
         );
       }
 
-      setPlans(
-        Array.isArray(data) ? data : []
-      );
+      setPlans(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error(
-        "Load plans error:",
-        err
-      );
+      console.error("Load plans error:", err);
 
       setError(
         "Unable to load investment plans. Make sure the backend is running."
@@ -113,16 +101,13 @@ function Menu() {
 
   const loadInvestments = async () => {
     try {
-      const response = await fetch(
-        `${API_URL}/investments`
-      );
+      const response = await fetch(`${API_URL}/investments`);
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Failed to load investments."
+          data.message || "Failed to load investments."
         );
       }
 
@@ -130,10 +115,7 @@ function Menu() {
         Array.isArray(data) ? data : []
       );
     } catch (err) {
-      console.error(
-        "Load investments error:",
-        err
-      );
+      console.error("Load investments error:", err);
     }
   };
 
@@ -143,7 +125,6 @@ function Menu() {
 
   const openInvestmentForm = (plan) => {
     setCurrentPlan(plan);
-
     setInvestmentAmount("");
     setTransactionId("");
     setError("");
@@ -151,11 +132,9 @@ function Menu() {
     setShowInvestmentForm(true);
     setShowPayment(false);
 
-    const alreadySelected =
-      selectedPlans.some(
-        (item) =>
-          item._id === plan._id
-      );
+    const alreadySelected = selectedPlans.some(
+      (item) => item._id === plan._id
+    );
 
     if (!alreadySelected) {
       setSelectedPlans((prev) => [
@@ -171,10 +150,7 @@ function Menu() {
 
   const removePlan = (id) => {
     setSelectedPlans((prev) =>
-      prev.filter(
-        (item) =>
-          item._id !== id
-      )
+      prev.filter((item) => item._id !== id)
     );
 
     if (currentPlan?._id === id) {
@@ -192,31 +168,24 @@ function Menu() {
 
   const startInvestment = () => {
     if (!currentPlan) {
-      alert(
-        "Please select an investment plan."
-      );
+      alert("Please select an investment plan.");
       return;
     }
 
-    const amount =
-      Number(investmentAmount);
+    const amount = Number(investmentAmount);
 
     if (!amount || amount <= 0) {
-      alert(
-        "Please enter an investment amount."
-      );
+      alert("Please enter an investment amount.");
       return;
     }
 
-    const minimum =
-      Number(
-        currentPlan.minCapital || 0
-      );
+    const minimum = Number(
+      currentPlan.minCapital || 0
+    );
 
-    const maximum =
-      Number(
-        currentPlan.maxCapital || 0
-      );
+    const maximum = Number(
+      currentPlan.maxCapital || 0
+    );
 
     if (amount < minimum) {
       alert(
@@ -225,10 +194,7 @@ function Menu() {
       return;
     }
 
-    if (
-      maximum > 0 &&
-      amount > maximum
-    ) {
+    if (maximum > 0 && amount > maximum) {
       alert(
         `Maximum investment is ${maximum.toLocaleString()} Birr.`
       );
@@ -245,38 +211,29 @@ function Menu() {
 
   const confirmPayment = async () => {
     if (!currentPlan) {
-      alert(
-        "No investment selected."
-      );
+      alert("No investment selected.");
       return;
     }
 
     if (!transactionId.trim()) {
-      alert(
-        "Please enter your CBE Transaction ID."
-      );
+      alert("Please enter your CBE Transaction ID.");
       return;
     }
 
-    const amount =
-      Number(investmentAmount);
+    const amount = Number(investmentAmount);
 
     if (!amount || amount <= 0) {
-      alert(
-        "Invalid investment amount."
-      );
+      alert("Invalid investment amount.");
       return;
     }
 
-    const minimum =
-      Number(
-        currentPlan.minCapital || 0
-      );
+    const minimum = Number(
+      currentPlan.minCapital || 0
+    );
 
-    const maximum =
-      Number(
-        currentPlan.maxCapital || 0
-      );
+    const maximum = Number(
+      currentPlan.maxCapital || 0
+    );
 
     if (amount < minimum) {
       alert(
@@ -285,10 +242,7 @@ function Menu() {
       return;
     }
 
-    if (
-      maximum > 0 &&
-      amount > maximum
-    ) {
+    if (maximum > 0 && amount > maximum) {
       alert(
         `Maximum investment is ${maximum.toLocaleString()} Birr.`
       );
@@ -303,39 +257,22 @@ function Menu() {
         `${API_URL}/investments`,
         {
           method: "POST",
-
           headers: {
-            "Content-Type":
-              "application/json"
+            "Content-Type": "application/json"
           },
-
           body: JSON.stringify({
-            planId:
-              currentPlan._id,
-
-            planName:
-              currentPlan.name,
-
-            commodity:
-              currentPlan.commodity,
-
-            amount:
-              amount,
-
-            transactionId:
-              transactionId.trim(),
-
-            paymentMethod:
-              "CBE",
-
-            status:
-              "Pending"
+            planId: currentPlan._id,
+            planName: currentPlan.name,
+            commodity: currentPlan.commodity,
+            amount: amount,
+            transactionId: transactionId.trim(),
+            paymentMethod: "CBE",
+            status: "Pending"
           })
         }
       );
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
@@ -344,15 +281,10 @@ function Menu() {
         );
       }
 
-      // Backend returns saved investment directly
-      const savedInvestment = data;
-
-      setConfirmedInvestments(
-        (prev) => [
-          savedInvestment,
-          ...prev
-        ]
-      );
+      setConfirmedInvestments((prev) => [
+        data,
+        ...prev
+      ]);
 
       setShowPayment(false);
       setShowInvestmentForm(false);
@@ -402,38 +334,31 @@ function Menu() {
   };
 
   // =========================
-  // FILTER PLANS
+  // FILTER
   // =========================
 
-  const filteredPlans =
-    plans.filter((plan) => {
-      const searchText =
-        search
-          .toLowerCase()
-          .trim();
+  const filteredPlans = plans.filter((plan) => {
+    const searchText = search
+      .toLowerCase()
+      .trim();
 
-      const searchMatch =
-        !searchText ||
-        plan.name
-          ?.toLowerCase()
-          .includes(searchText) ||
-        plan.commodity
-          ?.toLowerCase()
-          .includes(searchText) ||
-        plan.description
-          ?.toLowerCase()
-          .includes(searchText);
+    const searchMatch =
+      !searchText ||
+      plan.name?.toLowerCase().includes(searchText) ||
+      plan.commodity
+        ?.toLowerCase()
+        .includes(searchText) ||
+      plan.description
+        ?.toLowerCase()
+        .includes(searchText);
 
-      const categoryMatch =
-        category === "All Plans" ||
-        plan.commodity === category ||
-        plan.name === category;
+    const categoryMatch =
+      category === "All Plans" ||
+      plan.commodity === category ||
+      plan.name === category;
 
-      return (
-        searchMatch &&
-        categoryMatch
-      );
-    });
+    return searchMatch && categoryMatch;
+  });
 
   // =========================
   // PAGE
@@ -442,19 +367,14 @@ function Menu() {
   return (
     <div className="menu-page">
 
-      {/* =========================
-          HEADER
-      ========================= */}
-
       <h1>
         💎 Investment Opportunities
       </h1>
 
-      {/* =========================
-          CBE ACCOUNT
-      ========================= */}
+      {/* CBE ACCOUNT */}
 
       <div className="cbe-account-box">
+
         <p>
           <strong>
             CBE Account Name:
@@ -480,36 +400,29 @@ function Menu() {
             {CBE_ACCOUNT_NUMBER}
           </span>
         </p>
+
       </div>
 
-      {/* =========================
-          SEARCH
-      ========================= */}
+      {/* SEARCH */}
 
       <input
         type="text"
         placeholder="Search Quartz, Silver, Gold or Diamond..."
         value={search}
         onChange={(e) =>
-          setSearch(
-            e.target.value
-          )
+          setSearch(e.target.value)
         }
       />
 
       <br />
       <br />
 
-      {/* =========================
-          CATEGORY
-      ========================= */}
+      {/* CATEGORY */}
 
       <select
         value={category}
         onChange={(e) =>
-          setCategory(
-            e.target.value
-          )
+          setCategory(e.target.value)
         }
       >
         <option value="All Plans">
@@ -533,9 +446,7 @@ function Menu() {
         </option>
       </select>
 
-      {/* =========================
-          LOADING
-      ========================= */}
+      {/* LOADING */}
 
       {loading && (
         <p>
@@ -543,9 +454,7 @@ function Menu() {
         </p>
       )}
 
-      {/* =========================
-          ERROR
-      ========================= */}
+      {/* ERROR */}
 
       {error && (
         <p className="error-message">
@@ -553,9 +462,7 @@ function Menu() {
         </p>
       )}
 
-      {/* =========================
-          NO PLANS
-      ========================= */}
+      {/* NO PLANS */}
 
       {!loading &&
         filteredPlans.length === 0 && (
@@ -573,125 +480,131 @@ function Menu() {
           </div>
         )}
 
-      {/* =========================
-          PLANS
-      ========================= */}
+      {/* PLANS */}
 
       <div className="menu">
 
-        {filteredPlans.map(
-          (plan) => {
+        {filteredPlans.map((plan) => {
 
-            const selected =
-              selectedPlans.some(
-                (item) =>
-                  item._id ===
-                  plan._id
-              );
+          const selected =
+            selectedPlans.some(
+              (item) =>
+                item._id === plan._id
+            );
 
-            return (
-              <div
-                className={`card ${
-                  selected
-                    ? "selected-card"
-                    : ""
-                }`}
-                key={plan._id}
-              >
+          return (
+            <div
+              className={`card ${
+                selected
+                  ? "selected-card"
+                  : ""
+              }`}
+              key={plan._id}
+            >
 
-                {/* IMAGE */}
+              {/* =========================
+                  IMAGE
+              ========================= */}
 
-                {plan.image && (
-                  <img
-                    src={plan.image}
-                    alt={
-                      plan.name ||
-                      "Investment plan"
-                    }
-                    className="plan-image"
-                    onError={(e) => {
-                      e.currentTarget.style.display =
-                        "none";
-                    }}
-                  />
-                )}
+              {plan.image && (
+                <img
+                  src={plan.image}
+                  alt={
+                    plan.name ||
+                    "Investment plan"
+                  }
+                  className="plan-image"
+                  style={{
+                    width: "100%",
+                    height: "220px",
+                    objectFit: "cover",
+                    display: "block",
+                    borderRadius: "12px",
+                    marginBottom: "15px"
+                  }}
+                  onError={(e) => {
+                    console.log(
+                      "IMAGE ERROR:",
+                      e.currentTarget.src
+                    );
+                  }}
+                />
+              )}
 
-                {/* NAME */}
+              {/* NAME */}
 
-                <h2>
-                  {plan.name}
-                </h2>
+              <h2>
+                {plan.name}
+              </h2>
 
-                {/* COMMODITY */}
+              {/* COMMODITY */}
 
-                <h3>
-                  {plan.commodity}
-                </h3>
+              <h3>
+                {plan.commodity}
+              </h3>
 
-                {/* MINIMUM */}
+              {/* MINIMUM */}
 
+              <p>
+                <strong>
+                  Initial Capital:
+                </strong>{" "}
+
+                {Number(
+                  plan.minCapital || 0
+                ).toLocaleString()}{" "}
+                Birr
+              </p>
+
+              {/* MAXIMUM */}
+
+              {plan.maxCapital && (
                 <p>
                   <strong>
-                    Initial Capital:
+                    Maximum Capital:
                   </strong>{" "}
 
                   {Number(
-                    plan.minCapital || 0
+                    plan.maxCapital
                   ).toLocaleString()}{" "}
                   Birr
                 </p>
+              )}
 
-                {/* MAXIMUM */}
+              {/* RISK */}
 
-                {plan.maxCapital && (
-                  <p>
-                    <strong>
-                      Maximum Capital:
-                    </strong>{" "}
+              <p>
+                <strong>
+                  Risk Level:
+                </strong>{" "}
 
-                    {Number(
-                      plan.maxCapital
-                    ).toLocaleString()}{" "}
-                    Birr
-                  </p>
-                )}
+                {plan.riskLevel ||
+                  plan.risk ||
+                  "Not specified"}
+              </p>
 
-                {/* RISK */}
+              {/* DESCRIPTION */}
 
-                <p>
-                  <strong>
-                    Risk Level:
-                  </strong>{" "}
+              <p>
+                {plan.description}
+              </p>
 
-                  {plan.risk ||
-                    "Not specified"}
-                </p>
+              {/* SELECT */}
 
-                {/* DESCRIPTION */}
+              <button
+                type="button"
+                onClick={() =>
+                  openInvestmentForm(plan)
+                }
+              >
+                {selected
+                  ? "✓ Selected"
+                  : "Select Investment"}
+              </button>
 
-                <p>
-                  {plan.description}
-                </p>
-
-                {/* SELECT */}
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    openInvestmentForm(
-                      plan
-                    )
-                  }
-                >
-                  {selected
-                    ? "✓ Selected"
-                    : "Select Investment"}
-                </button>
-
-              </div>
-            );
-          }
-        )}
+            </div>
+          );
+        })}
 
       </div>
 
@@ -701,9 +614,7 @@ function Menu() {
 
       {showInvestmentForm &&
         currentPlan && (
-          <section
-            className="investment-form"
-          >
+          <section className="investment-form">
 
             <h2>
               {currentPlan.name} Investment
@@ -743,9 +654,7 @@ function Menu() {
                 undefined
               }
               placeholder="Enter investment amount"
-              value={
-                investmentAmount
-              }
+              value={investmentAmount}
               onChange={(e) =>
                 setInvestmentAmount(
                   e.target.value
@@ -755,18 +664,14 @@ function Menu() {
 
             <button
               type="button"
-              onClick={
-                startInvestment
-              }
+              onClick={startInvestment}
             >
               Continue to Payment
             </button>
 
             <button
               type="button"
-              onClick={
-                cancelInvestment
-              }
+              onClick={cancelInvestment}
             >
               Cancel
             </button>
@@ -775,14 +680,12 @@ function Menu() {
         )}
 
       {/* =========================
-          CBE PAYMENT
+          PAYMENT
       ========================= */}
 
       {showPayment &&
         currentPlan && (
-          <section
-            className="payment-box"
-          >
+          <section className="payment-box">
 
             <h2>
               💳 CBE Payment
@@ -847,9 +750,7 @@ function Menu() {
             <input
               type="text"
               placeholder="Enter CBE Transaction ID"
-              value={
-                transactionId
-              }
+              value={transactionId}
               onChange={(e) =>
                 setTransactionId(
                   e.target.value
@@ -859,9 +760,7 @@ function Menu() {
 
             <button
               type="button"
-              onClick={
-                confirmPayment
-              }
+              onClick={confirmPayment}
               disabled={saving}
             >
               {saving
@@ -871,9 +770,7 @@ function Menu() {
 
             <button
               type="button"
-              onClick={
-                cancelPayment
-              }
+              onClick={cancelPayment}
               disabled={saving}
             >
               Cancel
@@ -886,9 +783,7 @@ function Menu() {
           SELECTED PLANS
       ========================= */}
 
-      <section
-        className="selected-investments"
-      >
+      <section className="selected-investments">
 
         <h2>
           🛒 Selected Investment Plans
@@ -899,62 +794,56 @@ function Menu() {
             No investment plan selected.
           </p>
         ) : (
-          selectedPlans.map(
-            (plan) => (
-              <div
-                className="cart-item"
-                key={plan._id}
-              >
+          selectedPlans.map((plan) => (
+            <div
+              className="cart-item"
+              key={plan._id}
+            >
 
-                <h3>
-                  {plan.name}
-                </h3>
+              <h3>
+                {plan.name}
+              </h3>
 
+              <p>
+                Initial Capital:{" "}
+
+                {Number(
+                  plan.minCapital || 0
+                ).toLocaleString()}{" "}
+                Birr
+              </p>
+
+              {plan.maxCapital && (
                 <p>
-                  Initial Capital:{" "}
+                  Maximum Capital:{" "}
 
                   {Number(
-                    plan.minCapital || 0
+                    plan.maxCapital
                   ).toLocaleString()}{" "}
                   Birr
                 </p>
+              )}
 
-                {plan.maxCapital && (
-                  <p>
-                    Maximum Capital:{" "}
+              <button
+                type="button"
+                onClick={() =>
+                  openInvestmentForm(plan)
+                }
+              >
+                Invest
+              </button>
 
-                    {Number(
-                      plan.maxCapital
-                    ).toLocaleString()}{" "}
-                    Birr
-                  </p>
-                )}
+              <button
+                type="button"
+                onClick={() =>
+                  removePlan(plan._id)
+                }
+              >
+                Remove
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    openInvestmentForm(
-                      plan
-                    )
-                  }
-                >
-                  Invest
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    removePlan(
-                      plan._id
-                    )
-                  }
-                >
-                  Remove
-                </button>
-
-              </div>
-            )
-          )
+            </div>
+          ))
         )}
 
       </section>
@@ -963,9 +852,7 @@ function Menu() {
           MY INVESTMENTS
       ========================= */}
 
-      <section
-        className="confirmed-investments"
-      >
+      <section className="confirmed-investments">
 
         <h2>
           📋 My Investments
@@ -980,9 +867,7 @@ function Menu() {
             (investment) => (
               <div
                 className="investment-record"
-                key={
-                  investment._id
-                }
+                key={investment._id}
               >
 
                 <h3>
@@ -1060,6 +945,11 @@ function Menu() {
 }
 
 export default Menu;
+
+
+
+
+
 
 
 
