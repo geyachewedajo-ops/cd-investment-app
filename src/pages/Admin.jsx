@@ -225,7 +225,7 @@ function Admin() {
 
       const res = await fetch(
 
-`${API_URL}/withdrawals/${id}`,
+`${API_URL}/withdrawals/${id}/status`,
 
         {
           method: "PUT",
