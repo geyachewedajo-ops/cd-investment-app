@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_URL = "https://investment-backend-j2dr.onrender.com";
+const API_URL = "";
 
 function Admin() {
   const [investments, setInvestments] = useState([]);
