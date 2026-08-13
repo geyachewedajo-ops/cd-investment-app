@@ -791,3 +791,76 @@ button + button {
   background: #e2f8e8;
   color: #08752f;
 }
+/* =========================
+   INVESTMENT MODAL
+========================= */
+
+.investment-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.investment-modal-content {
+  width: 100%;
+  max-width: 500px;
+
+  padding: 25px;
+
+  background: white;
+  border-radius: 15px;
+
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+
+  color: #222;
+}
+
+.investment-modal-content h2 {
+  margin-top: 0;
+}
+
+.investment-modal-content input {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 12px;
+  margin: 8px 0 20px;
+
+  border: 1px solid #ccc;
+  border-radius: 8px;
+
+  font-size: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 12px;
+
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.payment-details {
+  margin: 20px 0;
+  padding: 15px;
+
+  background: #f5f5f5;
+  border-radius: 10px;
+}
