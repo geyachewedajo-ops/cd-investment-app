@@ -495,8 +495,20 @@ function Menu() {
   // PAGE
   // =========================
 
-  return (
-    <div className="menu-page">
+return (
+  <div className="menu-page">
+
+    <header className="menu-header">
+      <h1>
+        💎 Investment Plans
+      </h1>
+
+      <p>
+        Choose an investment plan
+        and submit your payment.
+      </p>
+    </header>
+
 
       <header className="menu-header">
         <h1>
@@ -1017,3 +1029,6 @@ function Menu() {
 }
 
 export default Menu;
+
+
+
