@@ -25,6 +25,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "customer",
     },
+
+    // Money deposited and credited to the customer
+    balance: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

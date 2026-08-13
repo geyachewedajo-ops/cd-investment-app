@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const investmentSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
+
     planId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true
@@ -19,7 +25,8 @@ const investmentSchema = new mongoose.Schema(
 
     amount: {
       type: Number,
-      required: true
+      required: true,
+      min: 1
     },
 
     transactionId: {
@@ -34,8 +41,17 @@ const investmentSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Pending", "Approved", "Rejected"],
+      enum: [
+        "Pending",
+        "Approved",
+        "Rejected"
+      ],
       default: "Pending"
+    },
+
+    approvedAt: {
+      type: Date,
+      default: null
     }
   },
   {
@@ -43,7 +59,8 @@ const investmentSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model(
-  "Investment",
-  investmentSchema
-);
+module.exports =
+  mongoose.model(
+    "Investment",
+    investmentSchema
+  );

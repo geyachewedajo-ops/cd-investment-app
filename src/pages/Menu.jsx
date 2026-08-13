@@ -1,7 +1,3 @@
-
-
-
-
 import { useEffect, useState } from "react";
 
 const API_URL = "";
@@ -11,17 +7,20 @@ const CBE_ACCOUNT_NUMBER = "1000303329505";
 
 function Menu() {
   const [plans, setPlans] = useState([]);
-
   const [selectedPlans, setSelectedPlans] = useState(() => {
     try {
-      const saved = localStorage.getItem("selectedInvestmentPlans");
+      const saved = localStorage.getItem(
+        "selectedInvestmentPlans"
+      );
+
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }
   });
 
-  const [confirmedInvestments, setConfirmedInvestments] = useState([]);
+  const [confirmedInvestments, setConfirmedInvestments] =
+    useState([]);
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All Plans");
@@ -31,31 +30,24 @@ function Menu() {
   const [error, setError] = useState("");
 
   const [currentPlan, setCurrentPlan] = useState(null);
-  const [investmentAmount, setInvestmentAmount] = useState("");
-  const [transactionId, setTransactionId] = useState("");
+  const [investmentAmount, setInvestmentAmount] =
+    useState("");
+  const [transactionId, setTransactionId] =
+    useState("");
 
-  const [showInvestmentForm, setShowInvestmentForm] = useState(false);
-  const [showPayment, setShowPayment] = useState(false);
+  const [showInvestmentForm, setShowInvestmentForm] =
+    useState(false);
+  const [showPayment, setShowPayment] =
+    useState(false);
 
   // =========================
-  // LOAD PLANS
+  // LOAD
   // =========================
 
   useEffect(() => {
     loadPlans();
-  }, []);
-
-  // =========================
-  // LOAD INVESTMENTS
-  // =========================
-
-  useEffect(() => {
     loadInvestments();
   }, []);
-
-  // =========================
-  // SAVE SELECTED PLANS
-  // =========================
 
   useEffect(() => {
     localStorage.setItem(
@@ -63,6 +55,25 @@ function Menu() {
       JSON.stringify(selectedPlans)
     );
   }, [selectedPlans]);
+
+  // =========================
+  // GET USER
+  // =========================
+
+  const getUser = () => {
+    try {
+      const savedUser =
+        localStorage.getItem("user");
+
+      if (!savedUser) {
+        return null;
+      }
+
+      return JSON.parse(savedUser);
+    } catch {
+      return null;
+    }
+  };
 
   // =========================
   // LOAD PLANS
@@ -73,22 +84,31 @@ function Menu() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(`${API_URL}/plans`);
+      const response = await fetch(
+        `${API_URL}/plans`
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Failed to load investment plans."
+          data.message ||
+            "Failed to load investment plans."
         );
       }
 
-      setPlans(Array.isArray(data) ? data : []);
+      setPlans(
+        Array.isArray(data) ? data : []
+      );
     } catch (err) {
-      console.error("Load plans error:", err);
+      console.error(
+        "Load plans error:",
+        err
+      );
 
       setError(
-        "Unable to load investment plans. Make sure the backend is running."
+        err.message ||
+          "Failed to load investment plans."
       );
     } finally {
       setLoading(false);
@@ -96,26 +116,50 @@ function Menu() {
   };
 
   // =========================
-  // LOAD INVESTMENTS
+  // LOAD CUSTOMER INVESTMENTS
   // =========================
 
   const loadInvestments = async () => {
     try {
-      const response = await fetch(`${API_URL}/investments`);
+      const user = getUser();
+
+      if (!user || !user._id) {
+        setConfirmedInvestments([]);
+        return;
+      }
+
+      const response = await fetch(
+        `${API_URL}/investments`
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Failed to load investments."
+          data.message ||
+            "Failed to load investments."
         );
       }
 
+      const allInvestments =
+        Array.isArray(data) ? data : [];
+
+      const myInvestments =
+        allInvestments.filter(
+          (investment) =>
+            String(
+              investment.userId
+            ) === String(user._id)
+        );
+
       setConfirmedInvestments(
-        Array.isArray(data) ? data : []
+        myInvestments
       );
     } catch (err) {
-      console.error("Load investments error:", err);
+      console.error(
+        "Load investments error:",
+        err
+      );
     }
   };
 
@@ -132,13 +176,15 @@ function Menu() {
     setShowInvestmentForm(true);
     setShowPayment(false);
 
-    const alreadySelected = selectedPlans.some(
-      (item) => item._id === plan._id
-    );
+    const alreadySelected =
+      selectedPlans.some(
+        (item) =>
+          item._id === plan._id
+      );
 
     if (!alreadySelected) {
-      setSelectedPlans((prev) => [
-        ...prev,
+      setSelectedPlans((previous) => [
+        ...previous,
         plan
       ]);
     }
@@ -149,8 +195,10 @@ function Menu() {
   // =========================
 
   const removePlan = (id) => {
-    setSelectedPlans((prev) =>
-      prev.filter((item) => item._id !== id)
+    setSelectedPlans((previous) =>
+      previous.filter(
+        (item) => item._id !== id
+      )
     );
 
     if (currentPlan?._id === id) {
@@ -168,24 +216,31 @@ function Menu() {
 
   const startInvestment = () => {
     if (!currentPlan) {
-      alert("Please select an investment plan.");
+      alert(
+        "Please select an investment plan."
+      );
       return;
     }
 
-    const amount = Number(investmentAmount);
+    const amount =
+      Number(investmentAmount);
 
     if (!amount || amount <= 0) {
-      alert("Please enter an investment amount.");
+      alert(
+        "Please enter an investment amount."
+      );
       return;
     }
 
-    const minimum = Number(
-      currentPlan.minCapital || 0
-    );
+    const minimum =
+      Number(
+        currentPlan.minCapital || 0
+      );
 
-    const maximum = Number(
-      currentPlan.maxCapital || 0
-    );
+    const maximum =
+      Number(
+        currentPlan.maxCapital || 0
+      );
 
     if (amount < minimum) {
       alert(
@@ -194,7 +249,10 @@ function Menu() {
       return;
     }
 
-    if (maximum > 0 && amount > maximum) {
+    if (
+      maximum > 0 &&
+      amount > maximum
+    ) {
       alert(
         `Maximum investment is ${maximum.toLocaleString()} Birr.`
       );
@@ -211,29 +269,47 @@ function Menu() {
 
   const confirmPayment = async () => {
     if (!currentPlan) {
-      alert("No investment selected.");
+      alert(
+        "No investment selected."
+      );
+      return;
+    }
+
+    const user = getUser();
+
+    if (!user || !user._id) {
+      alert(
+        "Please log in again before making an investment."
+      );
       return;
     }
 
     if (!transactionId.trim()) {
-      alert("Please enter your CBE Transaction ID.");
+      alert(
+        "Please enter your CBE Transaction ID."
+      );
       return;
     }
 
-    const amount = Number(investmentAmount);
+    const amount =
+      Number(investmentAmount);
 
     if (!amount || amount <= 0) {
-      alert("Invalid investment amount.");
+      alert(
+        "Invalid investment amount."
+      );
       return;
     }
 
-    const minimum = Number(
-      currentPlan.minCapital || 0
-    );
+    const minimum =
+      Number(
+        currentPlan.minCapital || 0
+      );
 
-    const maximum = Number(
-      currentPlan.maxCapital || 0
-    );
+    const maximum =
+      Number(
+        currentPlan.maxCapital || 0
+      );
 
     if (amount < minimum) {
       alert(
@@ -242,7 +318,10 @@ function Menu() {
       return;
     }
 
-    if (maximum > 0 && amount > maximum) {
+    if (
+      maximum > 0 &&
+      amount > maximum
+    ) {
       alert(
         `Maximum investment is ${maximum.toLocaleString()} Birr.`
       );
@@ -257,22 +336,29 @@ function Menu() {
         `${API_URL}/investments`,
         {
           method: "POST",
+
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type":
+              "application/json"
           },
+
           body: JSON.stringify({
+            userId: user._id,
             planId: currentPlan._id,
             planName: currentPlan.name,
-            commodity: currentPlan.commodity,
+            commodity:
+              currentPlan.commodity,
             amount: amount,
-            transactionId: transactionId.trim(),
+            transactionId:
+              transactionId.trim(),
             paymentMethod: "CBE",
             status: "Pending"
           })
         }
       );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       if (!response.ok) {
         throw new Error(
@@ -281,10 +367,15 @@ function Menu() {
         );
       }
 
-      setConfirmedInvestments((prev) => [
-        data,
-        ...prev
-      ]);
+      const savedInvestment =
+        data.investment || data;
+
+      setConfirmedInvestments(
+        (previous) => [
+          savedInvestment,
+          ...previous
+        ]
+      );
 
       setShowPayment(false);
       setShowInvestmentForm(false);
@@ -294,7 +385,7 @@ function Menu() {
       setCurrentPlan(null);
 
       alert(
-        "Investment submitted successfully!\n\nYour investment has been saved to MongoDB and is pending verification."
+        "Investment submitted successfully!\n\nYour deposit is now pending admin verification."
       );
     } catch (err) {
       console.error(
@@ -316,49 +407,89 @@ function Menu() {
   };
 
   // =========================
-  // CANCEL PAYMENT
-  // =========================
-
-  const cancelPayment = () => {
-    setShowPayment(false);
-    setTransactionId("");
-  };
-
-  // =========================
-  // CANCEL INVESTMENT
+  // CANCEL
   // =========================
 
   const cancelInvestment = () => {
-    setShowInvestmentForm(false);
+    setCurrentPlan(null);
     setInvestmentAmount("");
+    setTransactionId("");
+    setShowInvestmentForm(false);
+    setShowPayment(false);
+    setError("");
   };
 
   // =========================
-  // FILTER
+  // FILTER PLANS
   // =========================
 
-  const filteredPlans = plans.filter((plan) => {
-    const searchText = search
-      .toLowerCase()
-      .trim();
+  const categories = [
+    "All Plans",
+    ...new Set(
+      plans
+        .map(
+          (plan) =>
+            plan.category
+        )
+        .filter(Boolean)
+    )
+  ];
 
-    const searchMatch =
-      !searchText ||
-      plan.name?.toLowerCase().includes(searchText) ||
-      plan.commodity
-        ?.toLowerCase()
-        .includes(searchText) ||
-      plan.description
-        ?.toLowerCase()
-        .includes(searchText);
+  const filteredPlans =
+    plans.filter((plan) => {
+      const matchesSearch =
+        !search.trim() ||
+        String(
+          plan.name || ""
+        )
+          .toLowerCase()
+          .includes(
+            search
+              .trim()
+              .toLowerCase()
+          ) ||
+        String(
+          plan.commodity || ""
+        )
+          .toLowerCase()
+          .includes(
+            search
+              .trim()
+              .toLowerCase()
+          );
 
-    const categoryMatch =
-      category === "All Plans" ||
-      plan.commodity === category ||
-      plan.name === category;
+      const matchesCategory =
+        category ===
+          "All Plans" ||
+        plan.category ===
+          category;
 
-    return searchMatch && categoryMatch;
-  });
+      return (
+        matchesSearch &&
+        matchesCategory
+      );
+    });
+
+  // =========================
+  // STATUS
+  // =========================
+
+  const getStatusClass =
+    (status) => {
+      if (
+        status === "Approved"
+      ) {
+        return "status-approved";
+      }
+
+      if (
+        status === "Rejected"
+      ) {
+        return "status-rejected";
+      }
+
+      return "status-pending";
+    };
 
   // =========================
   // PAGE
@@ -367,571 +498,213 @@ function Menu() {
   return (
     <div className="menu-page">
 
-      <h1>
-        💎 Investment Opportunities
-      </h1>
-
-      {/* CBE ACCOUNT */}
-
-      <div className="cbe-account-box">
+      <header className="menu-header">
+        <h1>
+          💎 Investment Plans
+        </h1>
 
         <p>
-          <strong>
-            CBE Account Name:
-          </strong>{" "}
-          {CBE_ACCOUNT_NAME}
+          Choose an investment plan
+          and submit your payment.
         </p>
-
-        <p>
-          <strong>
-            CBE Account Number:
-          </strong>{" "}
-
-          <span
-            style={{
-              backgroundColor: "#0878f9",
-              color: "white",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontWeight: "bold",
-              display: "inline-block"
-            }}
-          >
-            {CBE_ACCOUNT_NUMBER}
-          </span>
-        </p>
-
-      </div>
-
-      {/* SEARCH */}
-
-      <input
-        type="text"
-        placeholder="Search Quartz, Silver, Gold or Diamond..."
-        value={search}
-        onChange={(e) =>
-          setSearch(e.target.value)
-        }
-      />
-
-      <br />
-      <br />
-
-      {/* CATEGORY */}
-
-      <select
-        value={category}
-        onChange={(e) =>
-          setCategory(e.target.value)
-        }
-      >
-        <option value="All Plans">
-          All Plans
-        </option>
-
-        <option value="Quartz">
-          Quartz
-        </option>
-
-        <option value="Silver">
-          Silver
-        </option>
-
-        <option value="Gold">
-          Gold
-        </option>
-
-        <option value="Diamond">
-          Diamond
-        </option>
-      </select>
-
-      {/* LOADING */}
-
-      {loading && (
-        <p>
-          Loading investment plans...
-        </p>
-      )}
+      </header>
 
       {/* ERROR */}
 
       {error && (
-        <p className="error-message">
+        <div className="error-message">
           {error}
-        </p>
+        </div>
       )}
 
-      {/* NO PLANS */}
+      {/* SEARCH */}
 
-      {!loading &&
-        filteredPlans.length === 0 && (
-          <div className="empty-plans">
+      <section className="plan-controls">
 
-            <h2>
-              No investment plans found.
-            </h2>
+        <input
+          type="text"
+          placeholder="Search plans..."
+          value={search}
+          onChange={(e) =>
+            setSearch(
+              e.target.value
+            )
+          }
+        />
 
-            <p>
-              Make sure your investment
-              plans are in MongoDB.
-            </p>
+        <select
+          value={category}
+          onChange={(e) =>
+            setCategory(
+              e.target.value
+            )
+          }
+        >
+          {categories.map(
+            (item) => (
+              <option
+                key={item}
+                value={item}
+              >
+                {item}
+              </option>
+            )
+          )}
+        </select>
+
+      </section>
+
+      {/* PLANS */}
+
+      <section className="plans-section">
+
+        <h2>
+          Available Plans
+        </h2>
+
+        {loading ? (
+          <p>
+            Loading investment
+            plans...
+          </p>
+        ) : filteredPlans.length ===
+          0 ? (
+          <p>
+            No investment plans
+            found.
+          </p>
+        ) : (
+          <div className="plans-grid">
+
+            {filteredPlans.map(
+              (plan) => (
+                <div
+                  className="plan-card"
+                  key={plan._id}
+                >
+
+                  <h3>
+                    {plan.name}
+                  </h3>
+
+                  <p>
+                    <strong>
+                      Commodity:
+                    </strong>{" "}
+                    {plan.commodity ||
+                      "N/A"}
+                  </p>
+
+                  <p>
+                    <strong>
+                      Minimum:
+                    </strong>{" "}
+                    {Number(
+                      plan.minCapital ||
+                        0
+                    ).toLocaleString()}{" "}
+                    Birr
+                  </p>
+
+                  {plan.maxCapital && (
+                    <p>
+                      <strong>
+                        Maximum:
+                      </strong>{" "}
+                      {Number(
+                        plan.maxCapital
+                      ).toLocaleString()}{" "}
+                      Birr
+                    </p>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openInvestmentForm(
+                        plan
+                      )
+                    }
+                  >
+                    💰 Invest
+                  </button>
+
+                </div>
+              )
+            )}
 
           </div>
         )}
 
-      {/* PLANS */}
+      </section>
 
-      <div className="menu">
-
-        {filteredPlans.map((plan) => {
-
-          const selected =
-            selectedPlans.some(
-              (item) =>
-                item._id === plan._id
-            );
-
-          return (
-            <div
-              className={`card ${
-                selected
-                  ? "selected-card"
-                  : ""
-              }`}
-              key={plan._id}
-            >
-
-              {/* =========================
-                  IMAGE
-              ========================= */}
-
-              {plan.image && (
-                <img
-                  src={plan.image}
-                  alt={
-                    plan.name ||
-                    "Investment plan"
-                  }
-                  className="plan-image"
-                  style={{
-                    width: "100%",
-                    height: "220px",
-                    objectFit: "cover",
-                    display: "block",
-                    borderRadius: "12px",
-                    marginBottom: "15px"
-                  }}
-                  onError={(e) => {
-                    console.log(
-                      "IMAGE ERROR:",
-                      e.currentTarget.src
-                    );
-                  }}
-                />
-              )}
-
-              {/* NAME */}
-
-              <h2>
-                {plan.name}
-              </h2>
-
-              {/* COMMODITY */}
-
-              <h3>
-                {plan.commodity}
-              </h3>
-
-              {/* MINIMUM */}
-
-              <p>
-                <strong>
-                  Initial Capital:
-                </strong>{" "}
-
-                {Number(
-                  plan.minCapital || 0
-                ).toLocaleString()}{" "}
-                Birr
-              </p>
-
-              {/* MAXIMUM */}
-
-              {plan.maxCapital && (
-                <p>
-                  <strong>
-                    Maximum Capital:
-                  </strong>{" "}
-
-                  {Number(
-                    plan.maxCapital
-                  ).toLocaleString()}{" "}
-                  Birr
-                </p>
-              )}
-
-              {/* RISK */}
-
-              <p>
-                <strong>
-                  Risk Level:
-                </strong>{" "}
-
-                {plan.riskLevel ||
-                  plan.risk ||
-                  "Not specified"}
-              </p>
-
-              {/* DESCRIPTION */}
-
-              <p>
-                {plan.description}
-              </p>
-
-              {/* SELECT */}
-
-              <button
-                type="button"
-                onClick={() =>
-                  openInvestmentForm(plan)
-                }
-              >
-                {selected
-                  ? "✓ Selected"
-                  : "Select Investment"}
-              </button>
-
-            </div>
-          );
-        })}
-
-      </div>
-
-      {/* =========================
-          INVESTMENT FORM
-      ========================= */}
-
-      {showInvestmentForm &&
-        currentPlan && (
-          <section className="investment-form">
-
-            <h2>
-              {currentPlan.name} Investment
-            </h2>
-
-            <p>
-              <strong>
-                Minimum Capital:
-              </strong>{" "}
-
-              {Number(
-                currentPlan.minCapital || 0
-              ).toLocaleString()}{" "}
-              Birr
-            </p>
-
-            {currentPlan.maxCapital && (
-              <p>
-                <strong>
-                  Maximum Capital:
-                </strong>{" "}
-
-                {Number(
-                  currentPlan.maxCapital
-                ).toLocaleString()}{" "}
-                Birr
-              </p>
-            )}
-
-            <input
-              type="number"
-              min={
-                currentPlan.minCapital
-              }
-              max={
-                currentPlan.maxCapital ||
-                undefined
-              }
-              placeholder="Enter investment amount"
-              value={investmentAmount}
-              onChange={(e) =>
-                setInvestmentAmount(
-                  e.target.value
-                )
-              }
-            />
-
-            <button
-              type="button"
-              onClick={startInvestment}
-            >
-              Continue to Payment
-            </button>
-
-            <button
-              type="button"
-              onClick={cancelInvestment}
-            >
-              Cancel
-            </button>
-
-          </section>
-        )}
-
-      {/* =========================
-          PAYMENT
-      ========================= */}
-
-      {showPayment &&
-        currentPlan && (
-          <section className="payment-box">
-
-            <h2>
-              💳 CBE Payment
-            </h2>
-
-            <h3>
-              {currentPlan.name}
-            </h3>
-
-            <p>
-              Investment Amount:
-            </p>
-
-            <h2>
-              {Number(
-                investmentAmount
-              ).toLocaleString()}{" "}
-              Birr
-            </h2>
-
-            <hr />
-
-            <p>
-              <strong>
-                Payment Method:
-              </strong>{" "}
-              CBE
-            </p>
-
-            <p>
-              <strong>
-                Account Name:
-              </strong>{" "}
-              {CBE_ACCOUNT_NAME}
-            </p>
-
-            <p>
-              <strong>
-                CBE Account Number:
-              </strong>{" "}
-
-              <span
-                style={{
-                  backgroundColor: "#0878f9",
-                  color: "white",
-                  padding: "8px 14px",
-                  borderRadius: "8px",
-                  fontWeight: "bold",
-                  display: "inline-block"
-                }}
-              >
-                {CBE_ACCOUNT_NUMBER}
-              </span>
-            </p>
-
-            <p>
-              Make your payment through
-              CBE, then enter your
-              transaction ID below.
-            </p>
-
-            <input
-              type="text"
-              placeholder="Enter CBE Transaction ID"
-              value={transactionId}
-              onChange={(e) =>
-                setTransactionId(
-                  e.target.value
-                )
-              }
-            />
-
-            <button
-              type="button"
-              onClick={confirmPayment}
-              disabled={saving}
-            >
-              {saving
-                ? "Saving to MongoDB..."
-                : "Confirm Investment"}
-            </button>
-
-            <button
-              type="button"
-              onClick={cancelPayment}
-              disabled={saving}
-            >
-              Cancel
-            </button>
-
-          </section>
-        )}
-
-      {/* =========================
-          SELECTED PLANS
-      ========================= */}
+      {/* SELECTED PLANS */}
 
       <section className="selected-investments">
 
         <h2>
-          🛒 Selected Investment Plans
+          🛒 Selected Investment
+          Plans
         </h2>
 
-        {selectedPlans.length === 0 ? (
+        {selectedPlans.length ===
+        0 ? (
           <p>
-            No investment plan selected.
+            No investment plan
+            selected.
           </p>
         ) : (
-          selectedPlans.map((plan) => (
-            <div
-              className="cart-item"
-              key={plan._id}
-            >
-
-              <h3>
-                {plan.name}
-              </h3>
-
-              <p>
-                Initial Capital:{" "}
-
-                {Number(
-                  plan.minCapital || 0
-                ).toLocaleString()}{" "}
-                Birr
-              </p>
-
-              {plan.maxCapital && (
-                <p>
-                  Maximum Capital:{" "}
-
-                  {Number(
-                    plan.maxCapital
-                  ).toLocaleString()}{" "}
-                  Birr
-                </p>
-              )}
-
-              <button
-                type="button"
-                onClick={() =>
-                  openInvestmentForm(plan)
-                }
-              >
-                Invest
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  removePlan(plan._id)
-                }
-              >
-                Remove
-              </button>
-
-            </div>
-          ))
-        )}
-
-      </section>
-
-      {/* =========================
-          MY INVESTMENTS
-      ========================= */}
-
-      <section className="confirmed-investments">
-
-        <h2>
-          📋 My Investments
-        </h2>
-
-        {confirmedInvestments.length === 0 ? (
-          <p>
-            No investments yet.
-          </p>
-        ) : (
-          confirmedInvestments.map(
-            (investment) => (
+          selectedPlans.map(
+            (plan) => (
               <div
-                className="investment-record"
-                key={investment._id}
+                className="cart-item"
+                key={plan._id}
               >
 
                 <h3>
-                  {investment.planName}
+                  {plan.name}
                 </h3>
 
                 <p>
-                  <strong>
-                    Commodity:
-                  </strong>{" "}
-
-                  {investment.commodity}
-                </p>
-
-                <p>
-                  <strong>
-                    Amount:
-                  </strong>{" "}
-
+                  Initial Capital:{" "}
                   {Number(
-                    investment.amount || 0
+                    plan.minCapital ||
+                      0
                   ).toLocaleString()}{" "}
                   Birr
                 </p>
 
-                <p>
-                  <strong>
-                    Payment Method:
-                  </strong>{" "}
+                {plan.maxCapital && (
+                  <p>
+                    Maximum Capital:{" "}
+                    {Number(
+                      plan.maxCapital
+                    ).toLocaleString()}{" "}
+                    Birr
+                  </p>
+                )}
 
-                  {investment.paymentMethod}
-                </p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    openInvestmentForm(
+                      plan
+                    )
+                  }
+                >
+                  Invest
+                </button>
 
-                <p>
-                  <strong>
-                    Transaction ID:
-                  </strong>{" "}
-
-                  {investment.transactionId}
-                </p>
-
-                <p>
-                  <strong>
-                    Status:
-                  </strong>{" "}
-
-                  {investment.status}
-                </p>
-
-                <p>
-                  <strong>
-                    Date:
-                  </strong>{" "}
-
-                  {investment.createdAt
-                    ? new Date(
-                        investment.createdAt
-                      ).toLocaleString()
-                    : investment.date
-                    ? new Date(
-                        investment.date
-                      ).toLocaleString()
-                    : ""}
-                </p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    removePlan(
+                      plan._id
+                    )
+                  }
+                >
+                  Remove
+                </button>
 
               </div>
             )
@@ -940,18 +713,307 @@ function Menu() {
 
       </section>
 
+      {/* MY INVESTMENTS */}
+
+      <section className="confirmed-investments">
+
+        <h2>
+          📋 My Investments
+        </h2>
+
+        {confirmedInvestments.length ===
+        0 ? (
+          <p>
+            No investments yet.
+          </p>
+        ) : (
+          confirmedInvestments.map(
+            (investment) => (
+              <div
+                className="investment-record"
+                key={
+                  investment._id
+                }
+              >
+
+                <h3>
+                  {
+                    investment.planName
+                  }
+                </h3>
+
+                <p>
+                  <strong>
+                    Commodity:
+                  </strong>{" "}
+                  {
+                    investment.commodity
+                  }
+                </p>
+
+                <p>
+                  <strong>
+                    Amount:
+                  </strong>{" "}
+                  {Number(
+                    investment.amount ||
+                      0
+                  ).toLocaleString()}{" "}
+                  Birr
+                </p>
+
+                <p>
+                  <strong>
+                    Transaction ID:
+                  </strong>{" "}
+                  {
+                    investment.transactionId
+                  }
+                </p>
+
+                <p>
+                  <strong>
+                    Payment Method:
+                  </strong>{" "}
+                  {
+                    investment.paymentMethod ||
+                      "CBE"
+                  }
+                </p>
+
+                <p>
+                  <strong>
+                    Status:
+                  </strong>{" "}
+                  <span
+                    className={getStatusClass(
+                      investment.status
+                    )}
+                  >
+                    {
+                      investment.status ||
+                        "Pending"
+                    }
+                  </span>
+                </p>
+
+                {investment.status ===
+                  "Approved" &&
+                  investment.approvedAt && (
+                    <p>
+                      <strong>
+                        Approved:
+                      </strong>{" "}
+                      {new Date(
+                        investment.approvedAt
+                      ).toLocaleString()}
+                    </p>
+                  )}
+
+                {investment.status ===
+                  "Pending" && (
+                  <p>
+                    ⏳ Waiting for admin
+                    approval.
+                  </p>
+                )}
+
+                {investment.status ===
+                  "Approved" && (
+                  <p>
+                    💰 Your deposited
+                    amount is credited
+                    after approval. The
+                    additional 40% becomes
+                    available after 24
+                    hours.
+                  </p>
+                )}
+
+              </div>
+            )
+          )
+        )}
+
+      </section>
+
+      {/* INVESTMENT FORM */}
+
+      {showInvestmentForm &&
+        currentPlan && (
+          <div className="investment-modal">
+
+            <div className="investment-modal-content">
+
+              <h2>
+                💰 Invest in{" "}
+                {currentPlan.name}
+              </h2>
+
+              <p>
+                Commodity:{" "}
+                {currentPlan.commodity}
+              </p>
+
+              <label>
+                Investment Amount
+              </label>
+
+              <input
+                type="number"
+                min={
+                  currentPlan.minCapital ||
+                  1
+                }
+                value={
+                  investmentAmount
+                }
+                onChange={(e) =>
+                  setInvestmentAmount(
+                    e.target.value
+                  )
+                }
+                placeholder="Enter amount"
+              />
+
+              <div className="modal-actions">
+
+                <button
+                  type="button"
+                  onClick={
+                    startInvestment
+                  }
+                >
+                  Continue
+                </button>
+
+                <button
+                  type="button"
+                  onClick={
+                    cancelInvestment
+                  }
+                >
+                  Cancel
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+      {/* PAYMENT */}
+
+      {showPayment &&
+        currentPlan && (
+          <div className="investment-modal">
+
+            <div className="investment-modal-content">
+
+              <h2>
+                💳 Payment
+              </h2>
+
+              <p>
+                Plan:{" "}
+                {currentPlan.name}
+              </p>
+
+              <p>
+                Amount:{" "}
+                {Number(
+                  investmentAmount ||
+                    0
+                ).toLocaleString()}{" "}
+                Birr
+              </p>
+
+              <div className="payment-details">
+
+                <p>
+                  <strong>
+                    Bank:
+                  </strong>{" "}
+                  CBE
+                </p>
+
+                <p>
+                  <strong>
+                    Account Name:
+                  </strong>{" "}
+                  {
+                    CBE_ACCOUNT_NAME
+                  }
+                </p>
+
+                <p>
+                  <strong>
+                    Account Number:
+                  </strong>{" "}
+                  {
+                    CBE_ACCOUNT_NUMBER
+                  }
+                </p>
+
+              </div>
+
+              <label>
+                CBE Transaction ID
+              </label>
+
+              <input
+                type="text"
+                value={
+                  transactionId
+                }
+                onChange={(e) =>
+                  setTransactionId(
+                    e.target.value
+                  )
+                }
+                placeholder="Enter transaction ID"
+              />
+
+              <p>
+                After payment, submit
+                the transaction ID for
+                admin verification.
+              </p>
+
+              <div className="modal-actions">
+
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={
+                    confirmPayment
+                  }
+                >
+                  {saving
+                    ? "Saving..."
+                    : "Submit Investment"}
+                </button>
+
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={
+                    cancelInvestment
+                  }
+                >
+                  Cancel
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
     </div>
   );
 }
 
 export default Menu;
-
-
-
-
-
-
-
-
-
-

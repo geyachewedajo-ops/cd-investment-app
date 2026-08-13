@@ -1,21 +1,71 @@
+
+
+
 import { useEffect, useState } from "react";
 
 const API_URL = "";
 
+const PROFIT_RATE = 0.40;
+
+const WAITING_PERIOD_MS =
+  24 * 60 * 60 * 1000;
+
 function Withdraw() {
   const [balance, setBalance] = useState(0);
+
   const [amount, setAmount] = useState("");
-  const [accountName, setAccountName] = useState("");
-  const [accountNumber, setAccountNumber] = useState("");
-  const [withdrawals, setWithdrawals] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+
+  const [accountName, setAccountName] =
+    useState("");
+
+  const [accountNumber, setAccountNumber] =
+    useState("");
+
+  const [withdrawals, setWithdrawals] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [message, setMessage] =
+    useState("");
+
+  const [error, setError] =
+    useState("");
+
+  // =========================
+  // LOAD PAGE
+  // =========================
 
   useEffect(() => {
     loadBalance();
     loadWithdrawals();
   }, []);
+
+  // =========================
+  // GET LOGGED-IN USER
+  // =========================
+
+  const getUser = () => {
+    try {
+      const savedUser =
+        localStorage.getItem("user");
+
+      if (!savedUser) {
+        return null;
+      }
+
+      return JSON.parse(savedUser);
+
+    } catch (err) {
+      console.error(
+        "User loading error:",
+        err
+      );
+
+      return null;
+    }
+  };
 
   // =========================
   // LOAD AVAILABLE BALANCE
@@ -25,10 +75,26 @@ function Withdraw() {
     try {
       setError("");
 
-      // Load investments
-      const investmentRes = await fetch(
-        `${API_URL}/investments`
-      );
+      const user = getUser();
+
+      if (!user || !user._id) {
+        setBalance(0);
+
+        setError(
+          "Please log in again."
+        );
+
+        return;
+      }
+
+      // -------------------------
+      // LOAD INVESTMENTS
+      // -------------------------
+
+      const investmentRes =
+        await fetch(
+          `${API_URL}/investments`
+        );
 
       if (!investmentRes.ok) {
         throw new Error(
@@ -39,28 +105,75 @@ function Withdraw() {
       const investmentData =
         await investmentRes.json();
 
-      const investments = Array.isArray(
-        investmentData
-      )
-        ? investmentData
-        : [];
-
-      // Only APPROVED investments count
-      const approvedTotal = investments
-        .filter(
-          (item) =>
-            item.status === "Approved"
+      const investments =
+        Array.isArray(
+          investmentData
         )
-        .reduce(
-          (sum, item) =>
-            sum + Number(item.amount || 0),
-          0
+          ? investmentData
+          : [];
+
+      const now = Date.now();
+
+      let totalBalance = 0;
+
+      // -------------------------
+      // CALCULATE CUSTOMER BALANCE
+      // -------------------------
+
+      investments
+        .filter(
+          (investment) =>
+            String(
+              investment.userId
+            ) ===
+              String(user._id) &&
+            investment.status ===
+              "Approved"
+        )
+        .forEach(
+          (investment) => {
+            const deposit =
+              Number(
+                investment.amount || 0
+              );
+
+            // Immediately show deposited amount
+            totalBalance += deposit;
+
+            // Add 40% after 24 hours
+            if (
+              investment.approvedAt
+            ) {
+              const approvedAt =
+                new Date(
+                  investment.approvedAt
+                ).getTime();
+
+              const matured =
+                now -
+                  approvedAt >=
+                WAITING_PERIOD_MS;
+
+              if (matured) {
+                const profit =
+                  deposit *
+                  PROFIT_RATE;
+
+                totalBalance +=
+                  profit;
+              }
+            }
+          }
         );
 
-      // Load withdrawals
-      const withdrawalRes = await fetch(
-        `${API_URL}/withdrawals`
-      );
+      // -------------------------
+      // LOAD WITHDRAWALS
+      // -------------------------
+
+      const withdrawalRes =
+        await fetch(
+          `${API_URL}/withdrawals`
+        );
 
       let withdrawalsData = [];
 
@@ -68,32 +181,63 @@ function Withdraw() {
         const data =
           await withdrawalRes.json();
 
-        withdrawalsData = Array.isArray(data)
-          ? data
-          : [];
+        withdrawalsData =
+          Array.isArray(data)
+            ? data
+            : [];
       }
 
-      // Approved/Paid withdrawals reduce balance
-      const withdrawnTotal =
-        withdrawalsData
+      // -------------------------
+      // ONLY THIS CUSTOMER
+      // -------------------------
+
+      const userWithdrawals =
+        withdrawalsData.filter(
+          (withdrawal) =>
+            String(
+              withdrawal.userId
+            ) ===
+            String(user._id)
+        );
+
+      // Pending, Approved and Paid
+      // withdrawals reserve money
+      const reservedAmount =
+        userWithdrawals
           .filter(
-            (item) =>
-              item.status === "Approved" ||
-              item.status === "Paid"
+            (withdrawal) =>
+              withdrawal.status ===
+                "Pending" ||
+              withdrawal.status ===
+                "Approved" ||
+              withdrawal.status ===
+                "Paid"
           )
           .reduce(
-            (sum, item) =>
-              sum + Number(item.amount || 0),
+            (sum, withdrawal) =>
+              sum +
+              Number(
+                withdrawal.amount ||
+                  0
+              ),
             0
           );
 
-      // Final balance
+      // -------------------------
+      // FINAL BALANCE
+      // -------------------------
+
       const availableBalance =
-        approvedTotal - withdrawnTotal;
+        totalBalance -
+        reservedAmount;
 
       setBalance(
-        Math.max(0, availableBalance)
+        Math.max(
+          0,
+          availableBalance
+        )
       );
+
     } catch (err) {
       console.error(
         "Balance loading error:",
@@ -112,161 +256,231 @@ function Withdraw() {
   // LOAD WITHDRAWAL HISTORY
   // =========================
 
-  const loadWithdrawals = async () => {
-    try {
-      const res = await fetch(
-        `${API_URL}/withdrawals`
-      );
+  const loadWithdrawals =
+    async () => {
+      try {
+        const res =
+          await fetch(
+            `${API_URL}/withdrawals`
+          );
 
-      if (!res.ok) {
-        return;
+        if (!res.ok) {
+          return;
+        }
+
+        const data =
+          await res.json();
+
+        setWithdrawals(
+          Array.isArray(data)
+            ? data
+            : []
+        );
+
+      } catch (err) {
+        console.error(
+          "Withdrawal loading error:",
+          err
+        );
       }
-
-      const data = await res.json();
-
-      setWithdrawals(
-        Array.isArray(data)
-          ? data
-          : []
-      );
-    } catch (err) {
-      console.error(
-        "Withdrawal loading error:",
-        err
-      );
-    }
-  };
+    };
 
   // =========================
   // SUBMIT WITHDRAWAL
   // =========================
 
-  const submitWithdrawal = async (e) => {
-    e.preventDefault();
+  const submitWithdrawal =
+    async (e) => {
+      e.preventDefault();
 
-    setMessage("");
-    setError("");
+      setMessage("");
+      setError("");
 
-    const withdrawalAmount =
-      Number(amount);
+      // -------------------------
+      // GET CUSTOMER
+      // -------------------------
 
-    // Check amount
-    if (
-      !withdrawalAmount ||
-      withdrawalAmount <= 0
-    ) {
-      setError(
-        "Please enter a valid withdrawal amount."
-      );
-      return;
-    }
+      const user = getUser();
 
-    // Check balance
-    if (
-      withdrawalAmount > balance
-    ) {
-      setError(
-        "Withdrawal amount cannot be greater than your available balance."
-      );
-      return;
-    }
-
-    // Check account name
-    if (!accountName.trim()) {
-      setError(
-        "Please enter your account name."
-      );
-      return;
-    }
-
-    // Check account number
-    if (!accountNumber.trim()) {
-      setError(
-        "Please enter your CBE account number."
-      );
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const res = await fetch(
-        `${API_URL}/withdrawals`,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body: JSON.stringify({
-            amount: withdrawalAmount,
-            accountName:
-              accountName.trim(),
-            accountNumber:
-              accountNumber.trim(),
-            paymentMethod: "CBE"
-          })
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(
-          data.message ||
-            "Withdrawal request failed."
+      if (!user || !user._id) {
+        setError(
+          "Please log in again."
         );
+
+        return;
       }
 
-      setMessage(
-        "Withdrawal request submitted successfully."
-      );
+      // -------------------------
+      // CHECK AMOUNT
+      // -------------------------
 
-      // Clear form
-      setAmount("");
-      setAccountName("");
-      setAccountNumber("");
+      const withdrawalAmount =
+        Number(amount);
 
-      // Reload balance/history
-      await loadBalance();
-      await loadWithdrawals();
+      if (
+        !withdrawalAmount ||
+        withdrawalAmount <= 0
+      ) {
+        setError(
+          "Please enter a valid withdrawal amount."
+        );
 
-    } catch (err) {
-      console.error(
-        "Withdrawal error:",
-        err
-      );
+        return;
+      }
 
-      setError(
-        err.message ||
-          "Unable to submit withdrawal request."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+      // -------------------------
+      // CHECK BALANCE
+      // -------------------------
+
+      if (
+        withdrawalAmount >
+        balance
+      ) {
+        setError(
+          "Withdrawal amount cannot be greater than your available balance."
+        );
+
+        return;
+      }
+
+      // -------------------------
+      // CHECK ACCOUNT NAME
+      // -------------------------
+
+      if (
+        !accountName.trim()
+      ) {
+        setError(
+          "Please enter your account name."
+        );
+
+        return;
+      }
+
+      // -------------------------
+      // CHECK ACCOUNT NUMBER
+      // -------------------------
+
+      if (
+        !accountNumber.trim()
+      ) {
+        setError(
+          "Please enter your CBE account number."
+        );
+
+        return;
+      }
+
+      try {
+        setLoading(true);
+
+        // -------------------------
+        // SEND WITHDRAWAL
+        // -------------------------
+
+        const res =
+          await fetch(
+            `${API_URL}/withdrawals`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+
+              body:
+                JSON.stringify({
+                  userId:
+                    user._id,
+
+                  amount:
+                    withdrawalAmount,
+
+                  accountName:
+                    accountName.trim(),
+
+                  accountNumber:
+                    accountNumber.trim(),
+
+                  paymentMethod:
+                    "CBE",
+                }),
+            }
+          );
+
+        const data =
+          await res.json();
+
+        if (!res.ok) {
+          throw new Error(
+            data.message ||
+              "Withdrawal request failed."
+          );
+        }
+
+        // -------------------------
+        // SUCCESS
+        // -------------------------
+
+        setMessage(
+          "Withdrawal request submitted successfully."
+        );
+
+        setAmount("");
+
+        setAccountName("");
+
+        setAccountNumber("");
+
+        // Reload balance
+        await loadBalance();
+
+        // Reload history
+        await loadWithdrawals();
+
+      } catch (err) {
+        console.error(
+          "Withdrawal error:",
+          err
+        );
+
+        setError(
+          err.message ||
+            "Unable to submit withdrawal request."
+        );
+
+      } finally {
+        setLoading(false);
+      }
+    };
 
   // =========================
   // STATUS CLASS
   // =========================
 
-  const getStatusClass = (status) => {
-    if (status === "Approved") {
-      return "status-approved";
-    }
+  const getStatusClass =
+    (status) => {
+      if (
+        status === "Approved"
+      ) {
+        return "status-approved";
+      }
 
-    if (status === "Rejected") {
-      return "status-rejected";
-    }
+      if (
+        status === "Rejected"
+      ) {
+        return "status-rejected";
+      }
 
-    if (status === "Paid") {
-      return "status-paid";
-    }
+      if (
+        status === "Paid"
+      ) {
+        return "status-paid";
+      }
 
-    return "status-pending";
-  };
+      return "status-pending";
+    };
 
   // =========================
   // PAGE
@@ -284,8 +498,9 @@ function Withdraw() {
         </h1>
 
         <p>
-          Request a withdrawal from your
-          approved investment balance.
+          Request a withdrawal
+          from your investment
+          balance.
         </p>
 
       </div>
@@ -307,7 +522,7 @@ function Withdraw() {
 
       </div>
 
-      {/* SUCCESS */}
+      {/* SUCCESS MESSAGE */}
 
       {message && (
         <div className="withdraw-success">
@@ -315,7 +530,7 @@ function Withdraw() {
         </div>
       )}
 
-      {/* ERROR */}
+      {/* ERROR MESSAGE */}
 
       {error && (
         <div className="withdraw-error">
@@ -323,107 +538,103 @@ function Withdraw() {
         </div>
       )}
 
-      {/* WITHDRAWAL FORM */}
+      {/* WITHDRAW FORM */}
 
       <form
         className="withdraw-form"
-        onSubmit={submitWithdrawal}
+        onSubmit={
+          submitWithdrawal
+        }
       >
 
-        <h2>
-          Withdrawal Request
-        </h2>
+        <div className="form-group">
 
-        {/* AMOUNT */}
+          <label>
+            Amount
+          </label>
 
-        <label>
-          Withdrawal Amount
-        </label>
+          <input
+            type="number"
+            min="1"
+            value={amount}
+            onChange={(e) =>
+              setAmount(
+                e.target.value
+              )
+            }
+            placeholder="Enter amount"
+            disabled={loading}
+          />
 
+        </div>
 
-<input
-  className="withdrawal-amount-input"
-  type="number"
-  min="1"
-  max={balance}
-  placeholder="Enter withdrawal amount"
-  value={amount}
-  onChange={(e) => setAmount(e.target.value)}
+        <div className="form-group">
 
+          <label>
+            Account Name
+          </label>
 
-          value={amount}
-          onChange={(e) =>
-            setAmount(
-              e.target.value
-            )
-          }
-        />
+          <input
+            type="text"
+            value={accountName}
+            onChange={(e) =>
+              setAccountName(
+                e.target.value
+              )
+            }
+            placeholder="Enter account name"
+            disabled={loading}
+          />
 
-        
+        </div>
 
-{/* ACCOUNT NAME */}
+        <div className="form-group">
 
-        <label>
-          Account Name
-        </label>
+          <label>
+            CBE Account Number
+          </label>
 
-<input
-  className="withdrawal-amount-input"
-  type="text"
-  placeholder="Enter CBE account name"
-  value={accountName}
-  onChange={(e) => setAccountName(e.target.value)}
-/>
+          <input
+            type="text"
+            value={accountNumber}
+            onChange={(e) =>
+              setAccountNumber(
+                e.target.value
+              )
+            }
+            placeholder="Enter CBE account number"
+            disabled={loading}
+          />
 
+        </div>
 
+        <div className="form-group">
 
-        {/* ACCOUNT NUMBER */}
+          <label>
+            Payment Method
+          </label>
 
-        <label>
-          CBE Account Number
-        </label>
+          <input
+            type="text"
+            value="CBE"
+            readOnly
+          />
 
-<input
-  className="withdrawal-amount-input"
-  type="text"
-  placeholder="Enter CBE account number"
-  value={accountNumber}
-  onChange={(e) => setAccountNumber(e.target.value)}
-/>
-
-
-        {/* PAYMENT METHOD */}
-
-        <p className="payment-method">
-
-          <strong>
-            Payment Method:
-          </strong>{" "}
-          CBE
-
-        </p>
-
-        {/* SUBMIT */}
+        </div>
 
         <button
           type="submit"
-          disabled={
-            loading ||
-            balance <= 0
-          }
+          className="withdraw-button"
+          disabled={loading}
         >
-
           {loading
             ? "Submitting..."
-            : balance <= 0
-            ? "No Available Balance"
-            : "Request Withdrawal"}
-
+            : "💸 Request Withdrawal"}
         </button>
 
       </form>
 
-      {/* HISTORY */}
+      {/* WITHDRAWAL HISTORY */}
 
       <section className="withdrawal-history">
 
@@ -431,85 +642,106 @@ function Withdraw() {
           📋 Withdrawal History
         </h2>
 
-        {withdrawals.length === 0 ? (
-
+        {withdrawals.length ===
+        0 ? (
           <p>
             No withdrawal requests yet.
           </p>
-
         ) : (
-
           withdrawals.map(
-            (withdrawal) => (
+            (withdrawal) => {
 
-              <div
-                className="withdrawal-card"
-                key={
-                  withdrawal._id
-                }
-              >
+              const user =
+                getUser();
 
-                <h3>
-                  {Number(
-                    withdrawal.amount ||
-                      0
-                  ).toLocaleString()}{" "}
-                  Birr
-                </h3>
+              // Only show this customer's
+              // withdrawals
+              if (
+                !user ||
+                String(
+                  withdrawal.userId
+                ) !==
+                  String(user._id)
+              ) {
+                return null;
+              }
 
-                <p>
-                  Account Name:{" "}
-                  {
-                    withdrawal.accountName
+              return (
+                <div
+                  className="withdrawal-record"
+                  key={
+                    withdrawal._id
                   }
-                </p>
+                >
 
-                <p>
-                  Account Number:{" "}
-                  {
-                    withdrawal.accountNumber
-                  }
-                </p>
+                  <h3>
+                    {Number(
+                      withdrawal.amount ||
+                        0
+                    ).toLocaleString()}{" "}
+                    Birr
+                  </h3>
 
-                <p>
-                  Payment:{" "}
-                  {
-                    withdrawal.paymentMethod ||
-                      "CBE"
-                  }
-                </p>
-
-                <p>
-                  Status:{" "}
-
-                  <strong
-                    className={getStatusClass(
-                      withdrawal.status
-                    )}
-                  >
+                  <p>
+                    <strong>
+                      Account Name:
+                    </strong>{" "}
                     {
-                      withdrawal.status
+                      withdrawal.accountName
                     }
-                  </strong>
+                  </p>
 
-                </p>
+                  <p>
+                    <strong>
+                      Account Number:
+                    </strong>{" "}
+                    {
+                      withdrawal.accountNumber
+                    }
+                  </p>
 
-                <p>
-                  Date:{" "}
+                  <p>
+                    <strong>
+                      Payment:
+                    </strong>{" "}
+                    {
+                      withdrawal.paymentMethod ||
+                      "CBE"
+                    }
+                  </p>
 
-                  {withdrawal.createdAt
-                    ? new Date(
+                  <p>
+                    <strong>
+                      Status:
+                    </strong>{" "}
+
+                    <span
+                      className={getStatusClass(
+                        withdrawal.status
+                      )}
+                    >
+                      {
+                        withdrawal.status
+                      }
+                    </span>
+
+                  </p>
+
+                  {withdrawal.createdAt && (
+                    <p>
+                      <strong>
+                        Date:
+                      </strong>{" "}
+                      {new Date(
                         withdrawal.createdAt
-                      ).toLocaleString()
-                    : "N/A"}
+                      ).toLocaleString()}
+                    </p>
+                  )}
 
-                </p>
-
-              </div>
-
-            )
+                </div>
+              );
+            }
           )
-
         )}
 
       </section>
@@ -519,3 +751,13 @@ function Withdraw() {
 }
 
 export default Withdraw;
+
+
+
+
+
+
+
+
+
+
