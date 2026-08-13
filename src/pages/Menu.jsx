@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 
-const API_URL = "";
+const API_URL = "https://investment-backend-j2dr.onrender.com";
 
 const CBE_ACCOUNT_NAME = "CBE";
 const CBE_ACCOUNT_NUMBER = "1000303329505";

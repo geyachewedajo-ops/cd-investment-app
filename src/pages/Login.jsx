@@ -9,7 +9,7 @@
 
 import { useState } from "react";
 
-const API_URL = "";
+const API_URL = "https://investment-backend-j2dr.onrender.com";
 
 function Login({ onLogin }) {
   const [mode, setMode] = useState("login");
