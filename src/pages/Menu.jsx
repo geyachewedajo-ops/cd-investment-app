@@ -551,6 +551,12 @@ function Menu({ user }) {
                   className="plan-card"
                   key={plan._id}
                 >
+                  <img
+                    src={`/images/${String(plan.name || "").toLowerCase()}.jpeg`}
+                    alt={plan.name || "Investment plan"}
+                    className="plan-image"
+                  />
+
 
                   <h3>
                     {plan.name}
