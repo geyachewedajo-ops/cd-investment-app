@@ -5,7 +5,7 @@ const API_URL = "";
 const CBE_ACCOUNT_NAME = "CBE";
 const CBE_ACCOUNT_NUMBER = "1000303329505";
 
-function Menu() {
+function Menu({ user }) {
   const [plans, setPlans] = useState([]);
 
   const [selectedPlans, setSelectedPlans] = useState(() => {
@@ -61,21 +61,6 @@ function Menu() {
   // GET USER
   // =========================
 
-  const getUser = () => {
-    try {
-      const savedUser =
-        localStorage.getItem("user");
-
-      if (!savedUser) {
-        return null;
-      }
-
-      return JSON.parse(savedUser);
-    } catch (err) {
-      console.error("User loading error:", err);
-      return null;
-    }
-  };
 
   // =========================
   // LOAD PLANS
@@ -123,7 +108,6 @@ function Menu() {
 
   const loadInvestments = async () => {
     try {
-      const user = getUser();
 
       if (!user || !user._id) {
         setConfirmedInvestments([]);
@@ -276,7 +260,6 @@ function Menu() {
       return;
     }
 
-    const user = getUser();
 
     if (!user || !user._id) {
       alert(

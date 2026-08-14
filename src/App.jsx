@@ -97,7 +97,7 @@ function App() {
 
         <Route
           path="/menu"
-          element={<Menu />}
+          element={<Menu user={user} />}
         />
 
         {/* WITHDRAW */}
