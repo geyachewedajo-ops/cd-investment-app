@@ -7,6 +7,7 @@ const CBE_ACCOUNT_NUMBER = "1000303329505";
 
 function Menu() {
   const [plans, setPlans] = useState([]);
+
   const [selectedPlans, setSelectedPlans] = useState(() => {
     try {
       const saved = localStorage.getItem(
@@ -37,8 +38,8 @@ function Menu() {
 
   const [showInvestmentForm, setShowInvestmentForm] =
     useState(false);
-  const [showPayment, setShowPayment] =
-    useState(false);
+
+  const [showPayment, setShowPayment] = useState(false);
 
   // =========================
   // LOAD
@@ -70,7 +71,8 @@ function Menu() {
       }
 
       return JSON.parse(savedUser);
-    } catch {
+    } catch (err) {
+      console.error("User loading error:", err);
       return null;
     }
   };
@@ -147,9 +149,8 @@ function Menu() {
       const myInvestments =
         allInvestments.filter(
           (investment) =>
-            String(
-              investment.userId
-            ) === String(user._id)
+            String(investment.userId) ===
+            String(user._id)
         );
 
       setConfirmedInvestments(
@@ -428,8 +429,7 @@ function Menu() {
     ...new Set(
       plans
         .map(
-          (plan) =>
-            plan.category
+          (plan) => plan.category
         )
         .filter(Boolean)
     )
@@ -437,32 +437,21 @@ function Menu() {
 
   const filteredPlans =
     plans.filter((plan) => {
+      const searchText =
+        search.trim().toLowerCase();
+
       const matchesSearch =
-        !search.trim() ||
-        String(
-          plan.name || ""
-        )
+        !searchText ||
+        String(plan.name || "")
           .toLowerCase()
-          .includes(
-            search
-              .trim()
-              .toLowerCase()
-          ) ||
-        String(
-          plan.commodity || ""
-        )
+          .includes(searchText) ||
+        String(plan.commodity || "")
           .toLowerCase()
-          .includes(
-            search
-              .trim()
-              .toLowerCase()
-          );
+          .includes(searchText);
 
       const matchesCategory =
-        category ===
-          "All Plans" ||
-        plan.category ===
-          category;
+        category === "All Plans" ||
+        plan.category === category;
 
       return (
         matchesSearch &&
@@ -471,44 +460,29 @@ function Menu() {
     });
 
   // =========================
-  // STATUS
+  // STATUS CLASS
   // =========================
 
-  const getStatusClass =
-    (status) => {
-      if (
-        status === "Approved"
-      ) {
-        return "status-approved";
-      }
+  const getStatusClass = (status) => {
+    if (status === "Approved") {
+      return "status-approved";
+    }
 
-      if (
-        status === "Rejected"
-      ) {
-        return "status-rejected";
-      }
+    if (status === "Rejected") {
+      return "status-rejected";
+    }
 
-      return "status-pending";
-    };
+    return "status-pending";
+  };
 
   // =========================
   // PAGE
   // =========================
 
-return (
-  <div className="menu-page">
+  return (
+    <div className="menu-page">
 
-    <header className="menu-header">
-      <h1>
-        💎 Investment Plans
-      </h1>
-
-      <p>
-        Choose an investment plan
-        and submit your payment.
-      </p>
-    </header>
-
+      {/* HEADER */}
 
       <header className="menu-header">
         <h1>
@@ -579,8 +553,7 @@ return (
             Loading investment
             plans...
           </p>
-        ) : filteredPlans.length ===
-          0 ? (
+        ) : filteredPlans.length === 0 ? (
           <p>
             No investment plans
             found.
@@ -590,6 +563,7 @@ return (
 
             {filteredPlans.map(
               (plan) => (
+
                 <div
                   className="plan-card"
                   key={plan._id}
@@ -612,8 +586,7 @@ return (
                       Minimum:
                     </strong>{" "}
                     {Number(
-                      plan.minCapital ||
-                        0
+                      plan.minCapital || 0
                     ).toLocaleString()}{" "}
                     Birr
                   </p>
@@ -659,8 +632,7 @@ return (
           Plans
         </h2>
 
-        {selectedPlans.length ===
-        0 ? (
+        {selectedPlans.length === 0 ? (
           <p>
             No investment plan
             selected.
@@ -668,6 +640,7 @@ return (
         ) : (
           selectedPlans.map(
             (plan) => (
+
               <div
                 className="cart-item"
                 key={plan._id}
@@ -680,8 +653,7 @@ return (
                 <p>
                   Initial Capital:{" "}
                   {Number(
-                    plan.minCapital ||
-                      0
+                    plan.minCapital || 0
                   ).toLocaleString()}{" "}
                   Birr
                 </p>
@@ -733,34 +705,28 @@ return (
           📋 My Investments
         </h2>
 
-        {confirmedInvestments.length ===
-        0 ? (
+        {confirmedInvestments.length === 0 ? (
           <p>
             No investments yet.
           </p>
         ) : (
           confirmedInvestments.map(
             (investment) => (
+
               <div
                 className="investment-record"
-                key={
-                  investment._id
-                }
+                key={investment._id}
               >
 
                 <h3>
-                  {
-                    investment.planName
-                  }
+                  {investment.planName}
                 </h3>
 
                 <p>
                   <strong>
                     Commodity:
                   </strong>{" "}
-                  {
-                    investment.commodity
-                  }
+                  {investment.commodity}
                 </p>
 
                 <p>
@@ -768,8 +734,7 @@ return (
                     Amount:
                   </strong>{" "}
                   {Number(
-                    investment.amount ||
-                      0
+                    investment.amount || 0
                   ).toLocaleString()}{" "}
                   Birr
                 </p>
@@ -778,34 +743,29 @@ return (
                   <strong>
                     Transaction ID:
                   </strong>{" "}
-                  {
-                    investment.transactionId
-                  }
+                  {investment.transactionId}
                 </p>
 
                 <p>
                   <strong>
                     Payment Method:
                   </strong>{" "}
-                  {
-                    investment.paymentMethod ||
-                      "CBE"
-                  }
+                  {investment.paymentMethod ||
+                    "CBE"}
                 </p>
 
                 <p>
                   <strong>
                     Status:
                   </strong>{" "}
+
                   <span
                     className={getStatusClass(
                       investment.status
                     )}
                   >
-                    {
-                      investment.status ||
-                        "Pending"
-                    }
+                    {investment.status ||
+                      "Pending"}
                   </span>
                 </p>
 
@@ -853,6 +813,7 @@ return (
 
       {showInvestmentForm &&
         currentPlan && (
+
           <div className="investment-modal">
 
             <div className="investment-modal-content">
@@ -919,6 +880,7 @@ return (
 
       {showPayment &&
         currentPlan && (
+
           <div className="investment-modal">
 
             <div className="investment-modal-content">
@@ -935,8 +897,7 @@ return (
               <p>
                 Amount:{" "}
                 {Number(
-                  investmentAmount ||
-                    0
+                  investmentAmount || 0
                 ).toLocaleString()}{" "}
                 Birr
               </p>
@@ -954,18 +915,14 @@ return (
                   <strong>
                     Account Name:
                   </strong>{" "}
-                  {
-                    CBE_ACCOUNT_NAME
-                  }
+                  {CBE_ACCOUNT_NAME}
                 </p>
 
                 <p>
                   <strong>
                     Account Number:
                   </strong>{" "}
-                  {
-                    CBE_ACCOUNT_NUMBER
-                  }
+                  {CBE_ACCOUNT_NUMBER}
                 </p>
 
               </div>
@@ -976,9 +933,7 @@ return (
 
               <input
                 type="text"
-                value={
-                  transactionId
-                }
+                value={transactionId}
                 onChange={(e) =>
                   setTransactionId(
                     e.target.value
@@ -1029,6 +984,3 @@ return (
 }
 
 export default Menu;
-
-
-
