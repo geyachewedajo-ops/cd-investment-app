@@ -104,7 +104,7 @@ function App() {
 
         <Route
           path="/withdraw"
-          element={<Withdraw />}
+          element={<Withdraw user={user} />}
         />
 
         {/* ABOUT */}

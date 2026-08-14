@@ -10,7 +10,7 @@ const PROFIT_RATE = 0.40;
 const WAITING_PERIOD_MS =
   24 * 60 * 60 * 1000;
 
-function Withdraw() {
+function Withdraw({ user }) {
   const [balance, setBalance] = useState(0);
 
   const [amount, setAmount] = useState("");
@@ -46,26 +46,6 @@ function Withdraw() {
   // GET LOGGED-IN USER
   // =========================
 
-  const getUser = () => {
-    try {
-      const savedUser =
-        localStorage.getItem("user");
-
-      if (!savedUser) {
-        return null;
-      }
-
-      return JSON.parse(savedUser);
-
-    } catch (err) {
-      console.error(
-        "User loading error:",
-        err
-      );
-
-      return null;
-    }
-  };
 
   // =========================
   // LOAD AVAILABLE BALANCE
@@ -75,7 +55,6 @@ function Withdraw() {
     try {
       setError("");
 
-      const user = getUser();
 
       if (!user || !user._id) {
         setBalance(0);
@@ -300,7 +279,6 @@ function Withdraw() {
       // GET CUSTOMER
       // -------------------------
 
-      const user = getUser();
 
       if (!user || !user._id) {
         setError(
@@ -651,8 +629,7 @@ function Withdraw() {
           withdrawals.map(
             (withdrawal) => {
 
-              const user =
-                getUser();
+              // Use the logged-in user from App.jsx
 
               // Only show this customer's
               // withdrawals
