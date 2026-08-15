@@ -1,13 +1,8 @@
-
-
-
-
-
-
 const express = require("express");
 const router = express.Router();
 
 const Investment = require("../models/Investment");
+const User = require("../models/User");
 
 // =========================
 // GET ALL INVESTMENTS
@@ -20,10 +15,7 @@ router.get("/", async (req, res) => {
 
     res.json(investments);
   } catch (error) {
-    console.error(
-      "GET INVESTMENTS ERROR:",
-      error
-    );
+    console.error("GET INVESTMENTS ERROR:", error);
 
     res.status(500).json({
       message: error.message,
@@ -48,10 +40,7 @@ router.get("/:id", async (req, res) => {
 
     res.json(investment);
   } catch (error) {
-    console.error(
-      "GET INVESTMENT ERROR:",
-      error
-    );
+    console.error("GET INVESTMENT ERROR:", error);
 
     res.status(500).json({
       message: error.message,
@@ -96,10 +85,10 @@ router.post("/", async (req, res) => {
       commodity,
       amount: Number(amount),
       transactionId,
-      paymentMethod:
-        paymentMethod || "CBE",
+      paymentMethod: paymentMethod || "CBE",
       status: "Pending",
       approvedAt: null,
+      referralPaid: false,
     });
 
     await investment.save();
@@ -154,21 +143,76 @@ router.put("/:id/status", async (req, res) => {
       });
     }
 
-    investment.status = status;
+    // =========================
+    // APPROVED
+    // =========================
 
-    // Start the 24-hour timer
-    // when admin approves
     if (status === "Approved") {
-      investment.approvedAt =
-        new Date();
+      investment.status = "Approved";
+      investment.approvedAt = new Date();
+
+      // =========================
+      // 10% REFERRAL COMMISSION
+      // =========================
+
+      if (!investment.referralPaid) {
+        const investor =
+          await User.findById(
+            investment.userId
+          );
+
+        if (
+          investor &&
+          investor.referredBy
+        ) {
+          const referrer =
+            await User.findOne({
+              referralCode:
+                investor.referredBy,
+            });
+
+          if (referrer) {
+            const referralAmount =
+              Number(investment.amount) *
+              0.10;
+
+            // Add referral balance
+            referrer.referralBalance =
+              Number(
+                referrer.referralBalance || 0
+              ) + referralAmount;
+
+            // Add total earnings
+            referrer.totalReferralEarnings =
+              Number(
+                referrer.totalReferralEarnings || 0
+              ) + referralAmount;
+
+            await referrer.save();
+
+            // Prevent duplicate payment
+            investment.referralPaid = true;
+
+            console.log(
+              "REFERRAL COMMISSION PAID:",
+              referralAmount,
+              "ETB to",
+              referrer.username
+            );
+          }
+        }
+      }
     }
 
-    // Clear timer if rejected
-    // or moved back to pending
+    // =========================
+    // REJECTED / PENDING
+    // =========================
+
     if (
       status === "Rejected" ||
       status === "Pending"
     ) {
+      investment.status = status;
       investment.approvedAt = null;
     }
 
@@ -190,5 +234,9 @@ router.put("/:id/status", async (req, res) => {
     });
   }
 });
+
+// =========================
+// EXPORT
+// =========================
 
 module.exports = router;
