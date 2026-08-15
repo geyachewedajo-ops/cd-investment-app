@@ -910,3 +910,7 @@ button + button {
 .hamburger span {
   background: #00c853 !important;
 }
+.hamburger {
+  color: #2196f3 !important;
+  cursor: pointer;
+}
