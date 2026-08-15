@@ -4,10 +4,7 @@ const router = express.Router();
 const Investment = require("../models/Investment");
 const User = require("../models/User");
 
-// =========================
 // GET ALL INVESTMENTS
-// =========================
-
 router.get("/", async (req, res) => {
   try {
     const investments = await Investment.find()
@@ -23,10 +20,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// =========================
 // GET ONE INVESTMENT
-// =========================
-
 router.get("/:id", async (req, res) => {
   try {
     const investment =
@@ -48,10 +42,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// =========================
 // CREATE INVESTMENT
-// =========================
-
 router.post("/", async (req, res) => {
   try {
     const {
@@ -73,8 +64,7 @@ router.post("/", async (req, res) => {
       !transactionId
     ) {
       return res.status(400).json({
-        message:
-          "All investment fields are required",
+        message: "All investment fields are required",
       });
     }
 
@@ -94,15 +84,11 @@ router.post("/", async (req, res) => {
     await investment.save();
 
     res.status(201).json({
-      message:
-        "Investment submitted successfully",
+      message: "Investment submitted successfully",
       investment,
     });
   } catch (error) {
-    console.error(
-      "CREATE INVESTMENT ERROR:",
-      error
-    );
+    console.error("CREATE INVESTMENT ERROR:", error);
 
     res.status(500).json({
       message: error.message,
@@ -110,79 +96,50 @@ router.post("/", async (req, res) => {
   }
 });
 
-// =========================
 // UPDATE INVESTMENT STATUS
-// =========================
-
 router.put("/:id/status", async (req, res) => {
   try {
     const { status } = req.body;
 
     if (
-      ![
-        "Pending",
-        "Approved",
-        "Rejected",
-      ].includes(status)
+      !["Pending", "Approved", "Rejected"].includes(status)
     ) {
       return res.status(400).json({
-        message:
-          "Invalid investment status",
+        message: "Invalid investment status",
       });
     }
 
     const investment =
-      await Investment.findById(
-        req.params.id
-      );
+      await Investment.findById(req.params.id);
 
     if (!investment) {
       return res.status(404).json({
-        message:
-          "Investment not found",
+        message: "Investment not found",
       });
     }
 
-    // =========================
     // APPROVED
-    // =========================
-
     if (status === "Approved") {
       investment.status = "Approved";
       investment.approvedAt = new Date();
 
-      // =========================
       // 10% REFERRAL COMMISSION
-      // =========================
-
       if (!investment.referralPaid) {
         const investor =
-          await User.findById(
-            investment.userId
-          );
+          await User.findById(investment.userId);
 
-        if (
-          investor &&
-          investor.referredBy
-        ) {
+        if (investor && investor.referredBy) {
           const referrer =
-            await User.findOne({
-              referralCode:
-                investor.referredBy,
-            });
+            await User.findById(investor.referredBy);
 
           if (referrer) {
             const referralAmount =
-              Number(investment.amount) *
-              0.10;
+              Number(investment.amount) * 0.10;
 
-            // Add referral balance
             referrer.referralBalance =
-              Number(
-                referrer.referralBalance || 0
-              ) + referralAmount;
+              Number(referrer.referralBalance || 0) +
+              referralAmount;
 
-            // Add total earnings
             referrer.totalReferralEarnings =
               Number(
                 referrer.totalReferralEarnings || 0
@@ -190,7 +147,6 @@ router.put("/:id/status", async (req, res) => {
 
             await referrer.save();
 
-            // Prevent duplicate payment
             investment.referralPaid = true;
 
             console.log(
@@ -204,10 +160,7 @@ router.put("/:id/status", async (req, res) => {
       }
     }
 
-    // =========================
-    // REJECTED / PENDING
-    // =========================
-
+    // REJECTED OR PENDING
     if (
       status === "Rejected" ||
       status === "Pending"
@@ -219,8 +172,7 @@ router.put("/:id/status", async (req, res) => {
     await investment.save();
 
     res.json({
-      message:
-        "Investment status updated",
+      message: "Investment status updated",
       investment,
     });
   } catch (error) {
@@ -234,9 +186,5 @@ router.put("/:id/status", async (req, res) => {
     });
   }
 });
-
-// =========================
-// EXPORT
-// =========================
 
 module.exports = router;

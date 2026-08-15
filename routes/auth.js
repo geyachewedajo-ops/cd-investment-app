@@ -4,45 +4,159 @@ const router = express.Router();
 const User = require("../models/User");
 
 // ===============================
+// GENERATE REFERRAL CODE
+// ===============================
+
+async function generateReferralCode() {
+  let code;
+  let exists = true;
+
+  while (exists) {
+    code =
+      "OSUN-" +
+      Math.random()
+        .toString(36)
+        .substring(2, 9)
+        .toUpperCase();
+
+    exists = await User.exists({
+      referralCode: code,
+    });
+  }
+
+  return code;
+}
+
+// ===============================
 // REGISTER
 // ===============================
+
 router.post("/register", async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const {
+      username,
+      email,
+      password,
+      referralCode,
+      ref,
+    } = req.body;
 
     if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Username, email and password are required",
+        message:
+          "Username, email and password are required",
       });
     }
 
+    const cleanUsername = username.trim();
+    const cleanEmail = email.trim().toLowerCase();
+
     const existingUser = await User.findOne({
-      $or: [{ username }, { email }],
+      $or: [
+        { username: cleanUsername },
+        { email: cleanEmail },
+      ],
     });
 
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "Username or email already exists",
+        message:
+          "Username or email already exists",
       });
     }
 
+    // ===============================
+    // FIND REFERRER
+    // ===============================
+
+    const suppliedReferralCode =
+      (referralCode || ref || "")
+        .trim()
+        .toUpperCase();
+
+    let referredBy = null;
+
+    if (suppliedReferralCode) {
+      const referrer = await User.findOne({
+        referralCode: suppliedReferralCode,
+      });
+
+      if (!referrer) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid referral code",
+        });
+      }
+
+      referredBy = referrer._id;
+    }
+
+    // ===============================
+    // CREATE PERSONAL REFERRAL CODE
+    // ===============================
+
+    const newReferralCode =
+      await generateReferralCode();
+
+    // ===============================
+    // CREATE CUSTOMER
+    // ===============================
+
     const user = new User({
-      username,
-      email,
+      username: cleanUsername,
+      email: cleanEmail,
       password,
+      role: "customer",
+
+      balance: 0,
+
+      referralCode: newReferralCode,
+
+      referredBy: referredBy,
+
+      referralBalance: 0,
+
+      totalReferralEarnings: 0,
     });
 
     await user.save();
 
+    // ===============================
+    // RESPONSE
+    // ===============================
+
     res.status(201).json({
       success: true,
-      message: "Registration successful",
-      user,
+
+      message:
+        "Registration successful",
+
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+
+        referralCode:
+          user.referralCode,
+
+        referredBy:
+          user.referredBy,
+
+        referralBalance:
+          user.referralBalance,
+
+        totalReferralEarnings:
+          user.totalReferralEarnings,
+      },
     });
   } catch (error) {
-    console.error("REGISTER ERROR:", error);
+    console.error(
+      "REGISTER ERROR:",
+      error
+    );
 
     res.status(500).json({
       success: false,
@@ -50,7 +164,6 @@ router.post("/register", async (req, res) => {
     });
   }
 });
-
 // ===============================
 // LOGIN
 // ===============================

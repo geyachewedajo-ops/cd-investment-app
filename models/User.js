@@ -26,8 +26,34 @@ const userSchema = new mongoose.Schema(
       default: "customer",
     },
 
-    // Money deposited and credited to the customer
+    // Customer balance
     balance: {
+      type: Number,
+      default: 0,
+    },
+
+    // =========================
+    // REFERRAL SYSTEM
+    // =========================
+
+    referralCode: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
+    referredBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    referralBalance: {
+      type: Number,
+      default: 0,
+    },
+
+    totalReferralEarnings: {
       type: Number,
       default: 0,
     },

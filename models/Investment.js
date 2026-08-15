@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const investmentSchema = new mongoose.Schema(
@@ -5,38 +6,38 @@ const investmentSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true
+      required: true,
     },
 
     planId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true
+      required: true,
     },
 
     planName: {
       type: String,
-      required: true
+      required: true,
     },
 
     commodity: {
       type: String,
-      required: true
+      required: true,
     },
 
     amount: {
       type: Number,
       required: true,
-      min: 1
+      min: 1,
     },
 
     transactionId: {
       type: String,
-      required: true
+      required: true,
     },
 
     paymentMethod: {
       type: String,
-      default: "CBE"
+      default: "CBE",
     },
 
     status: {
@@ -44,23 +45,31 @@ const investmentSchema = new mongoose.Schema(
       enum: [
         "Pending",
         "Approved",
-        "Rejected"
+        "Rejected",
       ],
-      default: "Pending"
+      default: "Pending",
     },
 
     approvedAt: {
       type: Date,
-      default: null
-    }
+      default: null,
+    },
+
+    // =========================
+    // REFERRAL COMMISSION
+    // =========================
+
+    referralPaid: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
-module.exports =
-  mongoose.model(
-    "Investment",
-    investmentSchema
-  );
+module.exports = mongoose.model(
+  "Investment",
+  investmentSchema
+);
