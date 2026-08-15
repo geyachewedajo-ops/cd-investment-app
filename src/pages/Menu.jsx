@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "";
 
 const CBE_ACCOUNT_NAME = "CBE";
 const CBE_ACCOUNT_NUMBER = "1000303329505";
