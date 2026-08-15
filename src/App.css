@@ -907,3 +907,6 @@ button + button {
     margin: 6px;
   }
 }
+.hamburger span {
+  background: #00c853 !important;
+}
