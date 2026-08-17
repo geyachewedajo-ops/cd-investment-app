@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 const API_URL = "";
 
 const CBE_ACCOUNT_NAME = "CBE";
-const CBE_ACCOUNT_NUMBER = "1000303329505";
+const CBE_ACCOUNT_NUMBER = "1004100058528";
 
 function Menu({ user }) {
   const [plans, setPlans] = useState([]);
