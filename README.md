@@ -1,16 +1,85 @@
-# React + Vite
+# Osunburg Investment Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A full-stack investment web application built with React, Node.js, Express, and MongoDB.
 
-Currently, two official plugins are available:
+## 🌐 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Website:** https://cd-investment-app.onrender.com
 
-## React Compiler
+## 📌 About the Project
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Osunburg Investment Platform is a full-stack web application developed to demonstrate modern web development skills.
 
-## Expanding the Oxlint configuration
+The application provides user registration and login, investment plans, investment requests, investment tracking, withdrawal requests, referral functionality, and an administration dashboard.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+This project demonstrates experience in frontend development, backend API development, database management, authentication, application logic, Git/GitHub, and deployment.
+
+## 🚀 Features
+
+### 👤 User Features
+
+- User registration
+- User login
+- User dashboard
+- View investment plans
+- Submit investment requests
+- Track investment status
+- Submit withdrawal requests
+- Referral system
+- Referral earnings
+- Mobile-friendly interface
+
+### 👨‍💼 Admin Features
+
+- Admin dashboard
+- View registered users
+- Manage investment requests
+- Approve investment requests
+- Reject investment requests
+- Manage withdrawal requests
+- Approve withdrawal requests
+- Reject withdrawal requests
+
+## 🛠️ Technologies Used
+
+### Frontend
+
+- React
+- JavaScript
+- HTML5
+- CSS3
+- React Router
+
+### Backend
+
+- Node.js
+- Express.js
+- REST API
+
+### Database
+
+- MongoDB
+
+### Development & Deployment
+
+- Git
+- GitHub
+- Render
+
+## 🔑 Backend API
+
+The application includes backend APIs for:
+
+- User authentication
+- Investment management
+- Withdrawal management
+- Investment plans
+- Referral system
+
+Main API routes include:
+
+```text
+/auth
+/investments
+/withdrawals
+/plans
